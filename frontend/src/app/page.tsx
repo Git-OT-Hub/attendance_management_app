@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/axios/axios';
 
 // APIレスポンスの型を配列にする
 interface ApiResponseItem {
@@ -12,9 +13,10 @@ const ApiTest: React.FC = () => {
     const [data, setData] = useState<ApiResponseItem[]>([]);
 
     useEffect(() => {
-        fetch('http://localhost:80/api/test')
-            .then(response => response.json())
-            .then((data: ApiResponseItem[]) => setData(data))
+        apiClient.get('/api/test')
+            .then((res) => {
+                setData(res.data)
+            })
             .catch(error => console.error('Error fetching data:', error));
     }, []);
 
