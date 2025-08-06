@@ -6,6 +6,7 @@ import TextInput from "@/components/ui/input/TextInput";
 import FormButton from "@/components/ui/button/FormButton";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
+import { ValidationErrors } from "@/types/errors/validationErrors";
 import { HTTP_CREATED, HTTP_UNPROCESSABLE_ENTITY } from "@/constants/httpStatus";
 
 const RegisterForm = () => {
@@ -13,6 +14,10 @@ const RegisterForm = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [passwordConfirmed, setPasswordConfirmed] = useState<string>('');
+    const [errors, setErrors] = useState<ValidationErrors>({
+        errors: {}
+    });
+    console.log(errors);
 
     const router = useRouter();
 
@@ -41,7 +46,7 @@ const RegisterForm = () => {
                 }).catch((e) => {
                     // バリデーションエラー表示
                     if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {
-                        console.log('バリデーション: ', e);
+                        setErrors({errors: {...e.response.data.errors}});
                         return;
                     }
 

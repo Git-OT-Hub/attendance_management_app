@@ -1,5 +1,5 @@
 'use client';
-import { useLayoutEffect } from "react";
+import AuthGuard from "@/components/auth/routeProtection/AuthGuard";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
@@ -9,15 +9,6 @@ import { deleteCookies } from "@/lib/cookies/deleteCookies";
 const EmailVerifyPage = () => {
     const router = useRouter();
 
-    // 下記をミドルウェア内で処理できないか検証する
-    useLayoutEffect(() => {
-        apiClient.get('/api/user').then((res: AxiosResponse<string>) => {
-            console.log('ログインユーザー情報: ', res);
-        }).catch((e) => {
-            console.error('ログインユーザー情報取得に失敗: ', e);
-        });
-    }, []);
-
     const logout = () => {
         if (confirm("ログアウトしますか？")) {
             apiClient.post('/api/logout').then((res: AxiosResponse<string>) => {
@@ -26,8 +17,9 @@ const EmailVerifyPage = () => {
                     return;
                 }
 
-                deleteCookies();
-                router.push('/');
+                deleteCookies().then(() => {
+                    router.push('/');
+                });
             }).catch((e) => {
                 console.error('予期しないエラー: ', e);
             });
@@ -35,7 +27,9 @@ const EmailVerifyPage = () => {
     };
 
     return (
-        <button onClick={logout}>ログアウト</button>
+        <AuthGuard>
+            <button onClick={logout}>ログアウト</button>
+        </AuthGuard>
     )
 }
 
