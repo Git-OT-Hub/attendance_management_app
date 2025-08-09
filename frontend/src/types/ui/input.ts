@@ -1,4 +1,4 @@
-export type InputProps = {
+export type TextInputProps = {
     label: string;
     type: string;
     name: string;

@@ -4,9 +4,10 @@ import { useRouter } from "next/navigation";
 import styles from "@/components/auth/register/RegisterForm.module.scss";
 import TextInput from "@/components/ui/input/TextInput";
 import FormButton from "@/components/ui/button/FormButton";
+import ValidationErrors from "@/components/ui/errors/ValidationErrors";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
-import { ValidationErrors } from "@/types/errors/validationErrors";
+import { ValidationErrorsType } from "@/types/errors/errors";
 import { HTTP_CREATED, HTTP_UNPROCESSABLE_ENTITY } from "@/constants/httpStatus";
 
 const RegisterForm = () => {
@@ -14,7 +15,7 @@ const RegisterForm = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [passwordConfirmed, setPasswordConfirmed] = useState<string>('');
-    const [errors, setErrors] = useState<ValidationErrors>({
+    const [errors, setErrors] = useState<ValidationErrorsType>({
         errors: {}
     });
     console.log(errors);
@@ -65,34 +66,54 @@ const RegisterForm = () => {
             onSubmit={register}
             className={styles.form}
         >
-            <TextInput
-                label="名前"
-                type="text"
-                name="name"
-                value={name}
-                fn={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-            />
-            <TextInput
-                label="メールアドレス"
-                type="email"
-                name="email"
-                value={email}
-                fn={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-            />
-            <TextInput
-                label="パスワード"
-                type="password"
-                name="password"
-                value={password}
-                fn={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-            />
-            <TextInput
-                label="パスワード確認"
-                type="password"
-                name="password_confirmation"
-                value={passwordConfirmed}
-                fn={(e: React.ChangeEvent<HTMLInputElement>) => setPasswordConfirmed(e.target.value)}
-            />
+            <div>
+                <TextInput
+                    label="名前"
+                    type="text"
+                    name="name"
+                    value={name}
+                    fn={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                />
+                <ValidationErrors
+                    errorKey="name"
+                    errors={errors}
+                />
+            </div>
+            <div>
+                <TextInput
+                    label="メールアドレス"
+                    type="email"
+                    name="email"
+                    value={email}
+                    fn={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                />
+                <ValidationErrors
+                    errorKey="email"
+                    errors={errors}
+                />
+            </div>
+            <div>
+                <TextInput
+                    label="パスワード"
+                    type="password"
+                    name="password"
+                    value={password}
+                    fn={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                />
+                <ValidationErrors
+                    errorKey="password"
+                    errors={errors}
+                />
+            </div>
+            <div>
+                <TextInput
+                    label="パスワード確認"
+                    type="password"
+                    name="password_confirmation"
+                    value={passwordConfirmed}
+                    fn={(e: React.ChangeEvent<HTMLInputElement>) => setPasswordConfirmed(e.target.value)}
+                />
+            </div>
             <div className={styles.btn}>
                 <FormButton
                     text="登録する"

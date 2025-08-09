@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CustomLinkProps } from "@/types/ui/customLink";
+import { CustomLinkProps } from "@/types/ui/link";
 import styles from "@/components/ui/link/CustomLink.module.scss";
 
 const CustomLink = ({href, text}: CustomLinkProps) => {

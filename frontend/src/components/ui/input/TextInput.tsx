@@ -1,7 +1,7 @@
-import { InputProps } from "@/types/ui/input";
+import { TextInputProps } from "@/types/ui/input";
 import styles from "@/components/ui/input/TextInput.module.scss";
 
-const TextInput = ({label, type, name, value, fn}: InputProps) => {
+const TextInput = ({label, type, name, value, fn}: TextInputProps) => {
     return (
         <div className={styles.input}>
             <label>
