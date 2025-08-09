@@ -7,6 +7,7 @@ import FormButton from "@/components/ui/button/FormButton";
 import ValidationErrors from "@/components/ui/errors/ValidationErrors";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
+import { setFlash } from "@/lib/toaster/toaster";
 import { ValidationErrorsType } from "@/types/errors/errors";
 import { HTTP_CREATED, HTTP_UNPROCESSABLE_ENTITY } from "@/constants/httpStatus";
 
@@ -43,7 +44,12 @@ const RegisterForm = () => {
                         return;
                     }
 
-                    router.push('/email_verify');
+                    setFlash({
+                        type: "success",
+                        message: "ユーザー登録しました",
+                    }).then(() => {
+                        router.push('/email_verify');
+                    });
                 }).catch((e) => {
                     // バリデーションエラー表示
                     if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {

@@ -1,0 +1,51 @@
+.toaster {
+    width: 50%;
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 4px 4px 4px #b6b4b4;
+
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    z-index: 10;
+
+    p {
+        margin: 0;
+    }
+
+    animation-name: popup;
+    animation-duration: 5s;
+    animation-fill-mode: forwards;
+
+    @keyframes popup {
+        0% {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        20% {
+            transform: none;
+            opacity: 1;
+        }
+        80% {
+            transform: none;
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-20px);
+            opacity: 0;
+            pointer-events: none;
+        }
+    }
+}
+
+.success {
+    background: rgb(223, 244, 214);
+    border: 1px solid rgb(174, 236, 145);
+}
+
+.error {
+    background: #f3a1a1;
+    border: 1px solid #f36f6f;
+}
