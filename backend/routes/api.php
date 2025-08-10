@@ -19,6 +19,8 @@ use App\Http\Controllers\TestController;
 
 // 一般ユーザー登録
 Route::post('/register', [RegisteredUserController::class, 'store']);
+// 一般ユーザーログイン
+Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
 // 認証済みのリクエストのみ許可
 Route::middleware(['auth:sanctum'])->group(function() {

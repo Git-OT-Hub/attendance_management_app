@@ -5,6 +5,7 @@ import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
 import { User } from "@/types/user/user";
 import { HTTP_OK, HTTP_UNAUTHORIZED } from "@/constants/httpStatus";
+import { flashStore } from "@/store/zustand/flashStore";
 
 const AuthGuard = ({
 	children,
@@ -12,6 +13,7 @@ const AuthGuard = ({
 	children: React.ReactNode;
 }>) => {
     const [loading, setLoading] = useState<boolean>(true);
+    const { addType, addMessage } = flashStore();
     const router = useRouter();
 
     useLayoutEffect(() => {
@@ -21,11 +23,13 @@ const AuthGuard = ({
                 return;
             }
 
-            console.log('ログイン成功');
             setLoading(false);
         }).catch((e) => {
             if (e.status === HTTP_UNAUTHORIZED) {
+                addType("error");
+                addMessage("ログインが必要です");
                 router.push('/login');
+
                 return;
             }
 

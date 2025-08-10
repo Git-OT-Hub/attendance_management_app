@@ -1,7 +1,7 @@
 'use client';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import styles from "@/components/auth/register/RegisterForm.module.scss";
+import styles from "@/components/auth/login/LoginForm.module.scss";
 import TextInput from "@/components/ui/input/TextInput";
 import FormButton from "@/components/ui/button/FormButton";
 import ValidationErrors from "@/components/ui/errors/ValidationErrors";
@@ -9,45 +9,41 @@ import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
 import { setFlash } from "@/lib/toaster/toaster";
 import { ValidationErrorsType } from "@/types/errors/errors";
-import { HTTP_CREATED, HTTP_UNPROCESSABLE_ENTITY } from "@/constants/httpStatus";
+import { HTTP_OK, HTTP_UNPROCESSABLE_ENTITY } from "@/constants/httpStatus";
 
-const RegisterForm = () => {
-    const [name, setName] = useState<string>('');
+const LoginForm = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [passwordConfirmed, setPasswordConfirmed] = useState<string>('');
     const [errors, setErrors] = useState<ValidationErrorsType>({
         errors: {}
     });
 
     const router = useRouter();
 
-    // laravelにユーザー登録処理のリクエストを投げる
-    const register = (e: React.FormEvent<HTMLFormElement>): void => {
+    // laravelにログイン処理のリクエストを投げる
+    const login = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
 
         const data = {
-            name: name,
             email: email,
             password: password,
-            password_confirmation: passwordConfirmed,
         };
 
         try {
             // CSRF保護を初期化
             apiClient.get('/sanctum/csrf-cookie').then(() => {
-                // ユーザー登録処理
-                apiClient.post('/api/register', data).then((res: AxiosResponse<string>) => {
-                    if (res.status !== HTTP_CREATED) {
+                // ログイン処理
+                apiClient.post('/api/login', data).then((res: AxiosResponse<string>) => {
+                    if (res.status !== HTTP_OK) {
                         console.error('予期しないエラー: ', res);
                         return;
                     }
 
                     setFlash({
                         type: "success",
-                        message: "ユーザー登録しました",
+                        message: "ログインしました",
                     }).then(() => {
-                        router.push('/email_verify');
+                        router.push('/attendance');
                     });
                 }).catch((e) => {
                     // バリデーションエラー表示
@@ -68,22 +64,9 @@ const RegisterForm = () => {
 
     return (
         <form
-            onSubmit={register}
+            onSubmit={login}
             className={styles.form}
         >
-            <div>
-                <TextInput
-                    label="名前"
-                    type="text"
-                    name="name"
-                    value={name}
-                    fn={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-                />
-                <ValidationErrors
-                    errorKey="name"
-                    errors={errors}
-                />
-            </div>
             <div>
                 <TextInput
                     label="メールアドレス"
@@ -110,22 +93,13 @@ const RegisterForm = () => {
                     errors={errors}
                 />
             </div>
-            <div>
-                <TextInput
-                    label="パスワード確認"
-                    type="password"
-                    name="password_confirmation"
-                    value={passwordConfirmed}
-                    fn={(e: React.ChangeEvent<HTMLInputElement>) => setPasswordConfirmed(e.target.value)}
-                />
-            </div>
             <div className={styles.btn}>
                 <FormButton
-                    text="登録する"
+                    text="ログインする"
                 />
             </div>
         </form>
     )
 }
 
-export default RegisterForm
+export default LoginForm

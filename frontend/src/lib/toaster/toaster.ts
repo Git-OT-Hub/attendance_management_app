@@ -1,20 +1,43 @@
 "use server";
 import { cookies } from "next/headers";
-import type { FlashToasterType } from "@/types/flash/flash";
+import type { FlashValueType } from "@/types/flash/flash";
 
-export const setFlash = async (flash: FlashToasterType) => {
+// 通常のフラッシュ
+export const setFlash = async (flash: FlashValueType) => {
     const cookieStore = await cookies();
     cookieStore.set("flash", JSON.stringify(flash), {
         path: "/",
     });
 };
 
-export const getFlash = async () => {
+// ルート保護用のフラッシュ
+export const setFlashForGuard = async (flash: FlashValueType) => {
     const cookieStore = await cookies();
-    return cookieStore.get("flash");
+    cookieStore.set("flash_guard", JSON.stringify(flash), {
+        path: "/",
+    });
 };
 
-export const deleteFlash = async () => {
+export const getFlash = async () => {
     const cookieStore = await cookies();
-    cookieStore.delete("flash");
+    const flashCookiesArray = cookieStore.getAll().filter((cookie) => {
+        return cookie.name === "flash" || cookie.name === "flash_guard";
+    });
+    const flashCookies = Object.fromEntries(
+        flashCookiesArray.map((cookie) => [cookie.name, cookie])
+    );
+
+    if (flashCookies.flash?.value && !flashCookies.flash_guard?.value) {
+        return flashCookies.flash;
+    } else if (!flashCookies.flash?.value && flashCookies.flash_guard?.value) {
+        return flashCookies.flash_guard;
+    } else {
+        return null;
+    };
+};
+
+export const deleteFlash = async (name: string) => {
+    const cookieStore = await cookies();
+    cookieStore.delete(name);
+    console.log('delete count!!!');
 };

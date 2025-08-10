@@ -1,29 +1,32 @@
 "use client";
 import { useEffect, useState } from "react";
-import type { FlashToasterType, FlashToasterClientProps } from "@/types/flash/flash";
+import type { FlashValueType, FlashToasterClientProps } from "@/types/flash/flash";
 import styles from "@/components/ui/toaster/FlashToasterClient.module.scss";
 import { deleteFlash } from "@/lib/toaster/toaster";
 
-const FlashToasterClient = ({ flash }: FlashToasterClientProps) => {
-    const [toaster, setToaster] = useState<FlashToasterType>({
+const FlashToasterClient = ({ flashName, flashValue }: FlashToasterClientProps) => {
+    const [toaster, setToaster] = useState<FlashValueType>({
         type: "",
         message: "",
     });
 
     useEffect(() => {
-        if (!!flash) {
-            const data: FlashToasterType = JSON.parse(flash);
+        if (!!flashValue && !!flashName) {
+            const parsedFlashValue: FlashValueType = JSON.parse(flashValue);
+
             setToaster({
-                type: data.type,
-                message: data.message,
+                type: parsedFlashValue.type,
+                message: parsedFlashValue.message,
             });
 
-            const deleteFlashCookies = async () => {
-                await deleteFlash();
+            const deleteFlashCookies = async (name: string) => {
+                await deleteFlash(name);
             };
-            deleteFlashCookies();
+            deleteFlashCookies(flashName);
+
+            console.log('effect count');
         }
-    }, [flash]);
+    }, [flashValue, flashName]);
 
     return (
         <div className={`${styles.toaster} ${toaster.type === 'success' ? styles.success : ''} ${toaster.type === 'error' ? styles.error : ''}`}>
