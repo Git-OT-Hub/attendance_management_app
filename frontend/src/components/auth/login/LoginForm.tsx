@@ -7,9 +7,9 @@ import FormButton from "@/components/ui/button/FormButton";
 import ValidationErrors from "@/components/ui/errors/ValidationErrors";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
-import { setFlash } from "@/lib/toaster/toaster";
 import { ValidationErrorsType } from "@/types/errors/errors";
 import { HTTP_OK, HTTP_UNPROCESSABLE_ENTITY } from "@/constants/httpStatus";
+import { flashStore } from "@/store/zustand/flashStore";
 
 const LoginForm = () => {
     const [email, setEmail] = useState<string>('');
@@ -17,7 +17,7 @@ const LoginForm = () => {
     const [errors, setErrors] = useState<ValidationErrorsType>({
         errors: {}
     });
-
+    const { createFlash } = flashStore();
     const router = useRouter();
 
     // laravelにログイン処理のリクエストを投げる
@@ -39,12 +39,11 @@ const LoginForm = () => {
                         return;
                     }
 
-                    setFlash({
+                    createFlash({
                         type: "success",
-                        message: "ログインしました",
-                    }).then(() => {
-                        router.push('/attendance');
+                        message: "ログインしました"
                     });
+                    router.push('/attendance');
                 }).catch((e) => {
                     // バリデーションエラー表示
                     if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {

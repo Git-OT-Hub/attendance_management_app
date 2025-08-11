@@ -1,6 +1,9 @@
-export type FlashStoreType = {
-    type: string;
+export type FlashValueType = {
+    type: "success" | "error" | "";
     message: string;
-    addType: (type: string) => void;
-    addMessage: (message: string) => void;
+};
+
+export type FlashStoreType = {
+    flash: FlashValueType;
+    createFlash: (value: FlashValueType) => void;
 }

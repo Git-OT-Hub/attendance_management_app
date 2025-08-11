@@ -1,28 +1,21 @@
-// "use server";
 "use client";
-import FlashToasterClient from "@/components/ui/toaster/FlashToasterClient";
-import { getFlash } from "@/lib/toaster/toaster";
-import { useEffect } from "react";
 import { flashStore } from "@/store/zustand/flashStore";
+import styles from "@/components/ui/toaster/FlashToaster.module.scss";
 
-// const FlashToaster = async () => {
 const FlashToaster = () => {
-    // const flash = await getFlash();
-    // console.log("flash-toaster: ", flash);
-    // if (!flash) {
-    //     return null;
-    // }
-    const { type, message } = flashStore();
+    const { flash } = flashStore();
+
+    if (!flash.type || !flash.message) {
+        return null;
+    }
 
     return (
-        <>
-        {/* <FlashToasterClient
-            flashName={flash?.name}
-            flashValue={flash?.value}
-        /> */}
-            <p>{type}</p>
-            <p>{message}</p>
-        </>
+        <div
+            key={`${flash.type}-${flash.message}`}
+            className={`${styles.toaster} ${flash.type === 'success' ? styles.success : ''} ${flash.type === 'error' ? styles.error : ''}`}
+        >
+            <p>{flash.message}</p>
+        </div>
     )
 }
 

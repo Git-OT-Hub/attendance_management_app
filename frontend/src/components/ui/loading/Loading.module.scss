@@ -1,0 +1,23 @@
+.content {
+    text-align: center;
+}
+
+.spinner {
+    font-size: 40px;
+    color: rgb(108, 142, 169);
+
+    animation: spin 1s infinite linear;
+
+    @keyframes spin {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+}
+
+.text {
+    font-size: 20px;
+    font-weight: bold;
+    color: rgb(108, 142, 169);
+    margin-top: 20px;
+}

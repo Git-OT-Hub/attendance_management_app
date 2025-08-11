@@ -7,9 +7,9 @@ import FormButton from "@/components/ui/button/FormButton";
 import ValidationErrors from "@/components/ui/errors/ValidationErrors";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
-import { setFlash } from "@/lib/toaster/toaster";
 import { ValidationErrorsType } from "@/types/errors/errors";
 import { HTTP_CREATED, HTTP_UNPROCESSABLE_ENTITY } from "@/constants/httpStatus";
+import { flashStore } from "@/store/zustand/flashStore";
 
 const RegisterForm = () => {
     const [name, setName] = useState<string>('');
@@ -19,7 +19,7 @@ const RegisterForm = () => {
     const [errors, setErrors] = useState<ValidationErrorsType>({
         errors: {}
     });
-
+    const { createFlash } = flashStore();
     const router = useRouter();
 
     // laravelにユーザー登録処理のリクエストを投げる
@@ -43,12 +43,11 @@ const RegisterForm = () => {
                         return;
                     }
 
-                    setFlash({
+                    createFlash({
                         type: "success",
-                        message: "ユーザー登録しました",
-                    }).then(() => {
-                        router.push('/email_verify');
+                        message: "ユーザー登録しました"
                     });
+                    router.push('/email_verify');
                 }).catch((e) => {
                     // バリデーションエラー表示
                     if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {
