@@ -1,35 +1,24 @@
-'use client';
-import AuthGuard from "@/components/auth/routeProtection/AuthGuard";
-import { useRouter } from "next/navigation";
-import { apiClient } from "@/lib/axios/axios";
-import { AxiosResponse } from "axios";
-import { HTTP_NO_CONTENT } from "@/constants/httpStatus";
-import { deleteCookies } from "@/lib/cookies/deleteCookies";
+import type { Metadata } from "next";
+import ResendEmail from "@/components/auth/email_verify/ResendEmail";
+import styles from "@/app/(auth)/email_verify/EmailVerifyPage.module.scss";
+
+export const metadata: Metadata = {
+    title: "メール認証誘導",
+    description: "メール認証誘導画面を表示します。",
+};
 
 const EmailVerifyPage = () => {
-    const router = useRouter();
-
-    const logout = () => {
-        if (confirm("ログアウトしますか？")) {
-            apiClient.post('/api/logout').then((res: AxiosResponse<string>) => {
-                if (res.status !== HTTP_NO_CONTENT) {
-                    console.error('予期しないエラー: ', res);
-                    return;
-                }
-
-                deleteCookies().then(() => {
-                    router.push('/');
-                });
-            }).catch((e) => {
-                console.error('予期しないエラー: ', e);
-            });
-        }
-    };
-
     return (
-        <AuthGuard>
-            <button onClick={logout}>ログアウト</button>
-        </AuthGuard>
+        <div className={styles.content}>
+            <p>登録していただいたメールアドレスに認証メールを送付しました。</p>
+            <p>メール認証を完了してください。</p>
+            <div className={styles.authentication}>
+                <a href="http://localhost:8025">
+                    認証はこちらから
+                </a>
+            </div>
+            <ResendEmail />
+        </div>
     )
 }
 

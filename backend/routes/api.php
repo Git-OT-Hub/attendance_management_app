@@ -22,14 +22,19 @@ Route::post('/register', [RegisteredUserController::class, 'store']);
 // 一般ユーザーログイン
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
-// 認証済みのリクエストのみ許可
+// 認証済みのユーザーからのリクエストのみ許可
 Route::middleware(['auth:sanctum'])->group(function() {
+    // ログインユーザー情報取得
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
     // 一般ユーザーログアウト
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
+
+    // メール認証済みのユーザーからのリクエストのみ許可
+    Route::middleware(['verified'])->group(function() {
+
+    });
 });
 
 Route::get('/test', [TestController::class, 'index']);
