@@ -17,10 +17,21 @@ const AuthGuard = ({
     const { createFlash } = flashStore();
     const router = useRouter();
 
+    // ログイン済み、かつ、メール認証が未完了かどうかを検証
     useLayoutEffect(() => {
         apiClient.get('/api/user').then((res: AxiosResponse<User>) => {
             if (res.status !== HTTP_OK) {
                 console.error('予期しないエラー: ', res.status);
+                return;
+            }
+
+            if (res.data.email_verified_at) {
+                createFlash({
+                    type: "error",
+                    message: "メール認証は既に完了しています"
+                });
+                router.push('/attendance');
+
                 return;
             }
 

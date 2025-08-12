@@ -8,7 +8,7 @@ import { HTTP_OK, HTTP_UNAUTHORIZED } from "@/constants/httpStatus";
 import { flashStore } from "@/store/zustand/flashStore";
 import Loading from "@/components/ui/loading/Loading";
 
-const VerifiedAuthGuard = ({
+const GuestGuard = ({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
@@ -17,7 +17,7 @@ const VerifiedAuthGuard = ({
     const { createFlash } = flashStore();
     const router = useRouter();
 
-    // ログイン済み、かつ、メール認証済みかどうかを検証
+    // ログアウト済みかどうかを検証
     useLayoutEffect(() => {
         apiClient.get('/api/user').then((res: AxiosResponse<User>) => {
             if (res.status !== HTTP_OK) {
@@ -25,29 +25,21 @@ const VerifiedAuthGuard = ({
                 return;
             }
 
-            if (!res.data.email_verified_at) {
+            if (res.status === HTTP_OK) {
                 createFlash({
                     type: "error",
-                    message: "メール認証を完了する必要があります"
+                    message: "先にログアウトしてください"
                 });
-                router.push('/email_verify');
+                router.push('/attendance');
+            }
+        }).catch((e) => {
+            if (e.status !== HTTP_UNAUTHORIZED) {
+                console.error('予期しないエラー: ', e);
 
                 return;
             }
 
             setLoading(false);
-        }).catch((e) => {
-            if (e.status === HTTP_UNAUTHORIZED) {
-                createFlash({
-                    type: "error",
-                    message: "ログインが必要です"
-                });
-                router.push('/login');
-
-                return;
-            }
-
-            console.error('予期しないエラー: ', e);
         });
     }, [router]);
 
@@ -62,4 +54,4 @@ const VerifiedAuthGuard = ({
     )
 }
 
-export default VerifiedAuthGuard
+export default GuestGuard

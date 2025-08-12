@@ -1,4 +1,5 @@
 import PrivateHeader from "@/components/layouts/privateHeader/PrivateHeader";
+import VerifiedAuthGuard from "@/components/auth/routeProtection/VerifiedAuthGuard";
 import styles from "@/app/(private)/Private.module.scss";
 
 const PrivateLayout = ({
@@ -8,10 +9,12 @@ const PrivateLayout = ({
 }>) => {
     return (
         <>
-            <PrivateHeader />
-            <div className={styles.content}>
-                {children}
-            </div>
+            <VerifiedAuthGuard>
+                <PrivateHeader />
+                <div className={styles.content}>
+                    {children}
+                </div>
+            </VerifiedAuthGuard>
         </>
     );
 };

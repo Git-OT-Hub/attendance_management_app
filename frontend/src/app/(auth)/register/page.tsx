@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import RegisterForm from "@/components/auth/register/RegisterForm";
 import CustomLink from "@/components/ui/link/CustomLink";
+import GuestGuard from "@/components/auth/routeProtection/GuestGuard";
 
 export const metadata: Metadata = {
     title: "会員登録",
@@ -10,12 +11,14 @@ export const metadata: Metadata = {
 const RegisterPage = () => {
     return (
         <>
-            <h1>会員登録</h1>
-            <RegisterForm />
-            <CustomLink
-                href="/login"
-                text="ログインはこちら"
-            />
+            <GuestGuard>
+                <h1>会員登録</h1>
+                <RegisterForm />
+                <CustomLink
+                    href="/login"
+                    text="ログインはこちら"
+                />
+            </GuestGuard>
         </>
     )
 }
