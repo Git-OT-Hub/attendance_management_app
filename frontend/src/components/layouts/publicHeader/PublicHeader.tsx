@@ -6,7 +6,7 @@ const PublicHeader = () => {
     return (
         <header className={styles.header}>
             <div className={styles.header__image}>
-                <Link href="/" className={styles.link}>
+                <Link href="/login" className={styles.link}>
                     <Image
                         alt="public header logo"
                         src="/images/headerLogo/header_logo.svg"

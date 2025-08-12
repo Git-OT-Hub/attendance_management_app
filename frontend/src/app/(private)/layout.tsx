@@ -1,4 +1,4 @@
-import PublicHeader from "@/components/layouts/publicHeader/PublicHeader";
+import PrivateHeader from "@/components/layouts/privateHeader/PrivateHeader";
 import styles from "@/app/(private)/Private.module.scss";
 
 const PrivateLayout = ({
@@ -8,7 +8,7 @@ const PrivateLayout = ({
 }>) => {
     return (
         <>
-            <PublicHeader />
+            <PrivateHeader />
             <div className={styles.content}>
                 {children}
             </div>
