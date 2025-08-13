@@ -1,11 +1,16 @@
-import AttendanceFlash from "@/components/attendance/AttendanceFlash";
+import AttendanceFlash from "@/components/attendance/attendanceFlash/AttendanceFlash";
+import DateTime from "@/components/attendance/dateTime/DateTime";
+import AttendanceClient from "@/components/attendance/attendanceClient/AttendanceClient";
+import styles from "@/app/(private)/attendance/AttendancePage.module.scss";
 
 const AttendancePage = () => {
     return (
         <>
             <AttendanceFlash />
-            <div>
-                AttendancePage
+            <div className={styles.content}>
+                <AttendanceClient>
+                    <DateTime />
+                </AttendanceClient>
             </div>
         </>
     )

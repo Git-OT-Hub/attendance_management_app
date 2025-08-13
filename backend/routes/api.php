@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\AttendanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,7 @@ Route::middleware(['auth:sanctum'])->group(function() {
 
     // メール認証済みのユーザーからのリクエストのみ許可
     Route::middleware(['verified'])->group(function() {
-
+        // 出勤
+        Route::post('/attendance/work', [AttendanceController::class, 'work']);
     });
 });
