@@ -33,6 +33,8 @@ Route::middleware(['auth:sanctum'])->group(function() {
 
     // メール認証済みのユーザーからのリクエストのみ許可
     Route::middleware(['verified'])->group(function() {
+        // 勤務状態確認
+        Route::get('/attendance/state', [AttendanceController::class, 'state']);
         // 出勤
         Route::post('/attendance/work', [AttendanceController::class, 'work']);
     });

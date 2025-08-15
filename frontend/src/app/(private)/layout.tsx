@@ -11,8 +11,10 @@ const PrivateLayout = ({
         <>
             <VerifiedAuthGuard>
                 <PrivateHeader />
-                <div className={styles.content}>
-                    {children}
+                <div className={styles.theme}>
+                    <div className={styles.content}>
+                        {children}
+                    </div>
                 </div>
             </VerifiedAuthGuard>
         </>

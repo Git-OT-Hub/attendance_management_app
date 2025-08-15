@@ -18,7 +18,28 @@ class AttendanceController extends Controller
     }
 
     /**
-     * 出勤処理を行い、その結果を JSON 形式で返す
+     * 勤務状態を確認し、その結果を JSON形式で返す
+     *
+     *
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function state(Request $request): JsonResponse
+    {
+        $startTime = (string)$request->query('start_time');
+
+        $res = $this->attendanceService->workingState($startTime);
+
+        if (!$res) {
+            return response()->json([
+                'state' => '勤務外'
+            ], Response::HTTP_OK);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
+    }
+
+    /**
+     * 出勤処理を行い、その結果を JSON形式で返す
      *
      * @param \App\Http\Requests\Attendance\WorkRequest $request
      * @return \Illuminate\Http\JsonResponse

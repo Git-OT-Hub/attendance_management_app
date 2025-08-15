@@ -10,7 +10,29 @@ use App\Http\Requests\Attendance\WorkRequest;
 class AttendanceRepository implements AttendanceRepositoryInterface
 {
     /**
-     * 出勤処理を行い、その結果をAttendanceインスタンスで返す
+     * 勤務状態を確認し、その結果をAttendanceインスタンス、もしくは null で返す
+     *
+     * @param string $startTime
+     * @return \App\Models\Attendance|null
+     */
+    public function checkWorkingState(string $startTime): Attendance|null
+    {
+        $userId = Auth::id();
+
+        // 同じ日付で既に登録されていないか検証
+        $attendance = Attendance::where('user_id', $userId)
+            ->whereDate('start_time', '=', date('Y-m-d', strtotime($startTime)))
+            ->first();
+
+        if (!$attendance) {
+            return null;
+        }
+
+        return $attendance;
+    }
+
+    /**
+     * 出勤処理を行い、その結果をAttendanceインスタンス、もしくは null で返す
      *
      * @param \App\Http\Requests\Attendance\WorkRequest $request
      * @return \App\Models\Attendance|null

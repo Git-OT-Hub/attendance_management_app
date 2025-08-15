@@ -17,7 +17,25 @@ class AttendanceService implements AttendanceServiceInterface
     }
 
     /**
-     * 出勤処理を行い、その結果をAttendanceインスタンスで返す
+     * 勤務状態を確認し、その結果をAttendanceインスタンス、もしくは null で返す
+     *
+     * @param string $startTime
+     * @return \App\Models\Attendance|null
+     */
+    public function workingState(string $startTime): Attendance|null
+    {
+        $attendance = $this->attendanceRepository->checkWorkingState($startTime);
+
+        // 勤怠状態の日本語化
+        if ($attendance) {
+            $attendance->state = $attendance->convertAttendanceState();
+        }
+
+        return $attendance;
+    }
+
+    /**
+     * 出勤処理を行い、その結果をAttendanceインスタンス、もしくは null で返す
      *
      * @param \App\Http\Requests\Attendance\WorkRequest $request
      * @return \App\Models\Attendance|null
