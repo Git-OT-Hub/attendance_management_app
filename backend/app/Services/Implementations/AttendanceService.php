@@ -7,6 +7,7 @@ use App\Repositories\Contracts\AttendanceRepositoryInterface;
 use App\Models\Attendance;
 use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
+use App\Http\Requests\Attendance\FinishBreakingRequest;
 
 class AttendanceService implements AttendanceServiceInterface
 {
@@ -71,6 +72,30 @@ class AttendanceService implements AttendanceServiceInterface
 
             $res = [
                 'breaking_id' => $attendanceAndBreaking['breaking']->id,
+                'state' => $attendanceState,
+            ];
+        }
+
+        return $res;
+    }
+
+    /**
+     * 休憩終了処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param \App\Http\Requests\Attendance\FinishBreakingRequest $request
+     * @return array{state: string}|null
+     */
+    public function breakEnd(FinishBreakingRequest $request): array|null
+    {
+        $res = null;
+        $attendance = $this->attendanceRepository->updateBreakEnd($request);
+
+        // レスポンスデータ作成
+        if ($attendance) {
+            // 勤怠状態の日本語化
+            $attendanceState = $attendance->convertAttendanceState();
+
+            $res = [
                 'state' => $attendanceState,
             ];
         }

@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Services\Contracts\AttendanceServiceInterface;
 use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
+use App\Http\Requests\Attendance\FinishBreakingRequest;
 
 class AttendanceController extends Controller
 {
@@ -75,5 +76,24 @@ class AttendanceController extends Controller
         }
 
         return response()->json($res, Response::HTTP_CREATED);
+    }
+
+    /**
+     * 休憩終了処理を行い、その結果を JSON形式で返す
+     *
+     * @param \App\Http\Requests\Attendance\FinishBreakingRequest $request
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function finishBreak(FinishBreakingRequest $request): JsonResponse
+    {
+        $res = $this->attendanceService->breakEnd($request);
+
+        if (!$res) {
+            return response()->json([
+                'message' => '休憩終了処理に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
     }
 }

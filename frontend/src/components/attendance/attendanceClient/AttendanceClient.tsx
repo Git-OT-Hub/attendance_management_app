@@ -3,7 +3,7 @@ import { useState, useLayoutEffect } from "react";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
 import { formatDateTime } from "@/lib/dateTime/date";
-import type { AttendanceType, WorkingStateType, BreakingType } from "@/types/attendance/attendance";
+import type { AttendanceType, WorkingStateType, BreakingType, FinishBreakingType } from "@/types/attendance/attendance";
 import { HTTP_OK ,HTTP_CREATED } from "@/constants/httpStatus";
 import { flashStore } from "@/store/zustand/flashStore";
 import { userStore } from "@/store/zustand/userStore";
@@ -144,7 +144,42 @@ const AttendanceClient = ({
     };
 
     const finishBreak = () => {
-        
+        if (confirm("休憩を終了しますか？")) {
+            const finishBreakTime = formatDateTime();
+            const attendanceId = localStorage.getItem(`attendance_id_${loginUserId}`);
+            const breakingId = localStorage.getItem(`breaking_id_${loginUserId}`);
+            const data = {
+                attendance_id: Number(attendanceId),
+                breaking_id: Number(breakingId),
+                end_time: finishBreakTime,
+                state: WORK,
+            };
+
+            apiClient.patch('/api/attendance/finish_break', data)
+                .then((res: AxiosResponse<FinishBreakingType>) => {
+                    console.log('finishBreak: ', res);
+                    if (res.status !== HTTP_OK) {
+                        console.error('予期しないエラー: ', res.status);
+                        return;
+                    }
+
+                    if (res.data.state === "出勤中") {
+                        localStorage.removeItem(`breaking_id_${loginUserId}`);
+                        setWorkingState(res.data.state);
+                    }
+
+                    createFlash({
+                        type: "success",
+                        message: "休憩を終了しました"
+                    });
+                }).catch((e) => {
+                    createFlash({
+                        type: "error",
+                        message: "休憩終了処理に失敗しました"
+                    });
+                    console.error('予期しないエラー: ', e);
+                });
+        };
     };
 
     return (
@@ -174,6 +209,13 @@ const AttendanceClient = ({
                             fn={takeBreak}
                         />
                     </div>
+                )}
+
+                {workingState === "休憩中" && (
+                    <AttendanceButton
+                        text="休憩戻"
+                        fn={finishBreak}
+                    />
                 )}
             </div>
         </div>

@@ -33,3 +33,7 @@ export type BreakingType = {
     breaking_id: number;
     state: string;
 }
+
+export type FinishBreakingType = {
+    state: string;
+}

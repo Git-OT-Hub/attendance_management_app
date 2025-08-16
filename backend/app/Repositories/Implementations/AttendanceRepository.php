@@ -10,6 +10,7 @@ use App\Models\Attendance;
 use App\Models\Breaking;
 use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
+use App\Http\Requests\Attendance\FinishBreakingRequest;
 
 class AttendanceRepository implements AttendanceRepositoryInterface
 {
@@ -94,6 +95,38 @@ class AttendanceRepository implements AttendanceRepositoryInterface
                     'attendance' => $attendance->fresh(),
                     'breaking'   => $breaking,
                 ];
+            });
+
+            return $res;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * 休憩終了処理を行い、その結果をAttendanceインスタンス、もしくは null で返す
+     *
+     * @param \App\Http\Requests\Attendance\FinishBreakingRequest $request
+     * @return \App\Models\Attendance|null
+     */
+    public function updateBreakEnd(FinishBreakingRequest $request): Attendance|null
+    {
+        try {
+            $res = DB::transaction(function () use($request) {
+                $attendance = Attendance::find($request->attendance_id);
+
+                // 勤怠状態を更新
+                $attendance->update([
+                    'state' => (int)$request->state,
+                ]);
+
+                // 休憩データの更新
+                $breaking = Breaking::find($request->breaking_id);
+                $breaking->update([
+                    'end_time' => $request->end_time,
+                ]);
+
+                return $attendance->fresh();
             });
 
             return $res;
