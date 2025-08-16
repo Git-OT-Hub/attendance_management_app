@@ -7,3 +7,8 @@ export type FlashStoreType = {
     flash: FlashValueType;
     createFlash: (value: FlashValueType) => void;
 }
+
+export type UserStoreType = {
+    loginUserId: number | null;
+    setUserId: (id: number) => void;
+}

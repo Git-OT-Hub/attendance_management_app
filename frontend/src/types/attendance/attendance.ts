@@ -1,6 +1,7 @@
 export type AttendanceType = {
     id: number | null;
     user_id: number | null;
+    start_date: string | null;
     start_time: string | null;
     end_time: string | null;
     total_breaking_time: string | null;
@@ -27,3 +28,8 @@ export type AttendanceButtonProps = {
 }
 
 export type WorkingStateType = "勤務外" | "出勤中" | "休憩中" | "退勤済";
+
+export type BreakingType = {
+    breaking_id: number;
+    state: string;
+}

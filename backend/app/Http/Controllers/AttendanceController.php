@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\Contracts\AttendanceServiceInterface;
 use App\Http\Requests\Attendance\WorkRequest;
+use App\Http\Requests\Attendance\BreakingRequest;
 
 class AttendanceController extends Controller
 {
@@ -52,6 +53,25 @@ class AttendanceController extends Controller
             return response()->json([
                 'message' => '同じ日付の出勤記録が既に存在します。'
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return response()->json($res, Response::HTTP_CREATED);
+    }
+
+    /**
+     * 休憩開始処理を行い、その結果を JSON形式で返す
+     *
+     * @param \App\Http\Requests\Attendance\BreakingRequest $request
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function break(BreakingRequest $request): JsonResponse
+    {
+        $res = $this->attendanceService->startBreak($request);
+
+        if (!$res) {
+            return response()->json([
+                'message' => '休憩開始処理に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return response()->json($res, Response::HTTP_CREATED);

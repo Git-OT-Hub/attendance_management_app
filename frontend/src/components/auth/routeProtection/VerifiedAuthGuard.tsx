@@ -6,6 +6,7 @@ import { AxiosResponse } from "axios";
 import { User } from "@/types/user/user";
 import { HTTP_OK, HTTP_UNAUTHORIZED } from "@/constants/httpStatus";
 import { flashStore } from "@/store/zustand/flashStore";
+import { userStore } from "@/store/zustand/userStore";
 import Loading from "@/components/ui/loading/Loading";
 
 const VerifiedAuthGuard = ({
@@ -15,6 +16,7 @@ const VerifiedAuthGuard = ({
 }>) => {
     const [loading, setLoading] = useState<boolean>(true);
     const { createFlash } = flashStore();
+    const { setUserId } = userStore();
     const router = useRouter();
 
     // ログイン済み、かつ、メール認証済みかどうかを検証
@@ -34,6 +36,8 @@ const VerifiedAuthGuard = ({
 
                 return;
             }
+
+            setUserId(res.data.id);
 
             setLoading(false);
         }).catch((e) => {

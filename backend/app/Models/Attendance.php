@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Enums\AttendanceState;
 
@@ -18,6 +19,7 @@ class Attendance extends Model
      */
     protected $fillable = [
         'user_id',
+        'start_date',
         'start_time',
         'end_time',
         'total_breaking_time',
@@ -40,6 +42,16 @@ class Attendance extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * 勤怠に紐づく休憩情報を取得するリレーション
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Breaking>
+     */
+    public function breakings(): HasMany
+    {
+        return $this->hasMany(Breaking::class);
     }
 
     /**

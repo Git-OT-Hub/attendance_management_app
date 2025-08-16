@@ -3,9 +3,10 @@ import { useState, useLayoutEffect } from "react";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
 import { formatDateTime } from "@/lib/dateTime/date";
-import type { AttendanceType, WorkingStateType } from "@/types/attendance/attendance";
+import type { AttendanceType, WorkingStateType, BreakingType } from "@/types/attendance/attendance";
 import { HTTP_OK ,HTTP_CREATED } from "@/constants/httpStatus";
 import { flashStore } from "@/store/zustand/flashStore";
+import { userStore } from "@/store/zustand/userStore";
 import AttendanceState from "@/components/attendance/attendanceState/AttendanceState";
 import AttendanceButton from "@/components/attendance/attendanceButton/AttendanceButton";
 import styles from "@/components/attendance/attendanceClient/AttendanceClient.module.scss";
@@ -18,13 +19,24 @@ const AttendanceClient = ({
 }>) => {
     const [workingState, setWorkingState] = useState<WorkingStateType>("勤務外");
     const { createFlash } = flashStore();
+    const { loginUserId } = userStore();
 
     useLayoutEffect(() => {
-        const startTime = formatDateTime();
+        let startTime = "";
+        const savedDateTime = localStorage.getItem(`dateTime_${loginUserId}`);
+
+        // 出勤処理後は、ローカルストレージに保存された日時を使う
+        // 理由：出勤処理後、日付が変わっても、休憩処理、退勤処理を正常に行えるようにするため
+        if (savedDateTime) {
+            startTime = savedDateTime;
+        } else {
+            startTime = formatDateTime();
+        }
+        console.log(startTime);
 
         apiClient.get(`/api/attendance/state?start_time=${encodeURIComponent(startTime)}`)
             .then((res) => {
-                console.log(res);
+                console.log('useEffect: ', res);
                 if (res.status === HTTP_OK && res.data.state === "勤務外") {
                     setWorkingState(res.data.state);
                     return;
@@ -46,15 +58,26 @@ const AttendanceClient = ({
 
     const startWorking = () => {
         if (confirm("この操作は、取り消しできませんがよろしいですか？")) {
+            const startTime = formatDateTime();
             const data = {
-                start_time: formatDateTime(),
+                start_time: startTime,
                 state: WORK,
             };
 
+            // ローカルストレージに出勤日時を保存
+            // useLayoutEffectで使用
+            localStorage.setItem(`dateTime_${loginUserId}`, startTime);
+
             apiClient.post('/api/attendance/work', data).then((res: AxiosResponse<AttendanceType>) => {
+                console.log('startWorking: ', res);
                 if (res.status !== HTTP_CREATED) {
                     console.error('予期しないエラー: ', res.status);
                     return;
+                }
+
+                if (res.data.id) {
+                    // 休憩処理、退勤処理に使用
+                    localStorage.setItem(`attendance_id_${loginUserId}`, String(res.data.id));
                 }
 
                 if (res.data.state === "出勤中") {
@@ -80,7 +103,48 @@ const AttendanceClient = ({
     };
 
     const takeBreak = () => {
+        if (confirm("休憩に入りますか？")) {
+            const breakStartTime = formatDateTime();
+            const attendanceId = localStorage.getItem(`attendance_id_${loginUserId}`);
+            const data = {
+                attendance_id: Number(attendanceId),
+                start_time: breakStartTime,
+                state: BREAK,
+            };
 
+            apiClient.post('/api/attendance/break', data)
+                .then((res: AxiosResponse<BreakingType>) => {
+                    console.log('takeBreak: ', res);
+                    if (res.status !== HTTP_CREATED) {
+                        console.error('予期しないエラー: ', res.status);
+                        return;
+                    }
+
+                    if (res.data.breaking_id) {
+                        // 休憩終了処理に使用
+                        localStorage.setItem(`breaking_id_${loginUserId}`, String(res.data.breaking_id));
+                    }
+
+                    if (res.data.state === "休憩中") {
+                        setWorkingState(res.data.state);
+                    }
+
+                    createFlash({
+                        type: "success",
+                        message: "休憩を開始しました"
+                    });
+                }).catch((e) => {
+                    createFlash({
+                        type: "error",
+                        message: "休憩開始処理に失敗しました"
+                    });
+                    console.error('予期しないエラー: ', e);
+                });
+        }
+    };
+
+    const finishBreak = () => {
+        
     };
 
     return (

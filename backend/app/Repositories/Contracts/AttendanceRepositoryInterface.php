@@ -3,7 +3,9 @@
 namespace App\Repositories\Contracts;
 
 use App\Models\Attendance;
+use App\Models\Breaking;
 use App\Http\Requests\Attendance\WorkRequest;
+use App\Http\Requests\Attendance\BreakingRequest;
 
 interface AttendanceRepositoryInterface
 {
@@ -22,4 +24,12 @@ interface AttendanceRepositoryInterface
      * @return \App\Models\Attendance|null
      */
     public function createAttendanceDataTime(WorkRequest $request): Attendance|null;
+
+    /**
+     * 休憩開始処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param \App\Http\Requests\Attendance\BreakingRequest $request
+     * @return array{attendance: \App\Models\Attendance, breaking: \App\Models\Breaking}|null
+     */
+    public function createStartBreak(BreakingRequest $request): array|null;
 }
