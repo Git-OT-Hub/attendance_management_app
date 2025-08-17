@@ -23,7 +23,7 @@ class AttendanceController extends Controller
     /**
      * 勤務状態を確認し、その結果を JSON形式で返す
      *
-     *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
     */
     public function state(Request $request): JsonResponse
@@ -111,6 +111,27 @@ class AttendanceController extends Controller
         if (!$res) {
             return response()->json([
                 'message' => '退勤処理に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
+    }
+
+    /**
+     * 対象月の日付リストを生成し、その結果を JSON形式で返す
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function list(Request $request): JsonResponse
+    {
+        $date = (string)$request->query('date') . '-01';
+
+        $res = $this->attendanceService->attendanceList($date);
+
+        if (!$res) {
+            return response()->json([
+                'message' => '勤怠一覧の取得に失敗しました'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

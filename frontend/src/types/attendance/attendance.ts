@@ -5,7 +5,7 @@ export type AttendanceType = {
     start_time: string | null;
     end_time: string | null;
     total_breaking_time: string | null;
-    total_working_time: string | null;
+    actual_working_time: string | null;
     corrected_start_time: string | null;
     corrected_end_time: string | null;
     comment: string | null;
@@ -40,4 +40,13 @@ export type FinishBreakingType = {
 
 export type FinishWorkType = {
     state: string;
+}
+
+export type AttendanceListType = {
+    date: string;
+    id: number | null;
+    start_time: string | null;
+    end_time: string | null;
+    total_breaking_time: string | null;
+    actual_working_time: string | null;
 }

@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Contracts;
 
+use Illuminate\Database\Eloquent\Collection;
 use App\Models\Attendance;
 use App\Models\Breaking;
 use App\Http\Requests\Attendance\WorkRequest;
@@ -50,4 +51,12 @@ interface AttendanceRepositoryInterface
      * @return \App\Models\Attendance|null
      */
     public function updateClockOut(FinishWorkRequest $request): Attendance|null;
+
+    /**
+     * ログインユーザーの対象月の勤怠を取得
+     *
+     * @param string $date
+     * @return \Illuminate\Database\Eloquent\Collection<string, \App\Models\Attendance>|null
+     */
+    public function findAttendanceList(string $date): Collection|null;
 }

@@ -49,4 +49,19 @@ interface AttendanceServiceInterface
      * @return array{state: string}|null
      */
     public function clockOut(FinishWorkRequest $request): array|null;
+
+    /**
+     * 対象月の日付リストを生成し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $date
+     * @return array<int, array{
+     * date: string,
+     * id: int|null,
+     * start_time: string|null,
+     * end_time: string|null,
+     * total_breaking_time: int|null,
+     * actual_working_time: int|null
+     * }>|null
+     */
+    public function attendanceList(string $date): array|null;
 }

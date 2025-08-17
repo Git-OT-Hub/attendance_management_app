@@ -4,6 +4,7 @@ namespace App\Repositories\Implementations;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
 use App\Repositories\Contracts\AttendanceRepositoryInterface;
 use App\Models\Attendance;
@@ -161,6 +162,31 @@ class AttendanceRepository implements AttendanceRepositoryInterface
             ]);
 
             return $attendance->fresh();
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * ログインユーザーの対象月の勤怠を取得
+     *
+     * @param string $date
+     * @return \Illuminate\Database\Eloquent\Collection<string, \App\Models\Attendance>|null
+     */
+    public function findAttendanceList(string $date): Collection|null
+    {
+        try {
+            $userId = Auth::id();
+            $startOfMonth = Carbon::parse($date)->startOfMonth();
+            $endOfMonth = Carbon::parse($date)->endOfMonth();
+
+            // ログインユーザーの対象月の勤怠を取得
+            $attendances = Attendance::where('user_id', $userId)
+                ->whereBetween('start_date', [$startOfMonth, $endOfMonth])
+                ->get()
+                ->keyBy('start_date');
+
+            return $attendances;
         } catch (\Throwable $e) {
             return null;
         }

@@ -23,7 +23,7 @@ const PrivateHeader = () => {
                     className={styles.nav__link}
                 >勤怠</Link>
                 <Link
-                    href=""
+                    href="/attendance/list"
                     className={styles.nav__link}
                 >勤怠一覧</Link>
                 <Link
