@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
+use App\Http\Requests\Attendance\FinishWorkRequest;
 
 interface AttendanceServiceInterface
 {
@@ -40,4 +41,12 @@ interface AttendanceServiceInterface
      * @return array{state: string}|null
      */
     public function breakEnd(FinishBreakingRequest $request): array|null;
+
+    /**
+     * 退勤処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param \App\Http\Requests\Attendance\FinishWorkRequest $request
+     * @return array{state: string}|null
+     */
+    public function clockOut(FinishWorkRequest $request): array|null;
 }

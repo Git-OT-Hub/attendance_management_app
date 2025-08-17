@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Carbon\Carbon;
 use App\Enums\AttendanceState;
 
 class Attendance extends Model
@@ -23,7 +24,7 @@ class Attendance extends Model
         'start_time',
         'end_time',
         'total_breaking_time',
-        'total_working_time',
+        'actual_working_time',
         'corrected_start_time',
         'corrected_end_time',
         'comment',
@@ -70,5 +71,42 @@ class Attendance extends Model
         }
 
         return $attendanceState;
+    }
+
+    /**
+     * 休憩時間の合計を算出する
+     *
+     * @return int
+     */
+    public function totalBreakingTime(): int
+    {
+        $res = 0;
+        $breakings = $this->breakings;
+
+        foreach ($breakings as $breaking) {
+            $start = Carbon::parse($breaking->start_time);
+            $end   = Carbon::parse($breaking->end_time);
+
+            $res = $res + $start->diffInSeconds($end);
+        }
+
+        return $res;
+    }
+
+    /**
+     * 実勤務時間を算出する
+     *
+     * @return int
+     */
+    public function actualWorkingTime(string $workEndTime, int $totalBreakingTime): int
+    {
+        $res = 0;
+
+        $start = Carbon::parse($this->start_time);
+        $end   = Carbon::parse($workEndTime);
+        $totalWorkTime = $start->diffInSeconds($end);
+        $res = $totalWorkTime - $totalBreakingTime;
+
+        return $res;
     }
 }

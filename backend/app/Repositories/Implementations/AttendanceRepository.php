@@ -11,6 +11,7 @@ use App\Models\Breaking;
 use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
+use App\Http\Requests\Attendance\FinishWorkRequest;
 
 class AttendanceRepository implements AttendanceRepositoryInterface
 {
@@ -130,6 +131,36 @@ class AttendanceRepository implements AttendanceRepositoryInterface
             });
 
             return $res;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * 退勤処理を行い、その結果をAttendanceインスタンス、もしくは null で返す
+     *
+     * @param \App\Http\Requests\Attendance\FinishWorkRequest $request
+     * @return \App\Models\Attendance|null
+     */
+    public function updateClockOut(FinishWorkRequest $request): Attendance|null
+    {
+        try {
+            $workEndTime = $request->end_time;
+            $attendance = Attendance::find($request->attendance_id);
+
+            // 休憩時間の合計を取得
+            $totalBreakingTime = $attendance->totalBreakingTime();
+            // 実勤務時間を取得
+            $actualWorkingTime = $attendance->actualWorkingTime(workEndTime: $workEndTime, totalBreakingTime: $totalBreakingTime);
+
+            $attendance->update([
+                'end_time' => $workEndTime,
+                'total_breaking_time' => $totalBreakingTime,
+                'actual_working_time' => $actualWorkingTime,
+                'state' => (int)$request->state,
+            ]);
+
+            return $attendance->fresh();
         } catch (\Throwable $e) {
             return null;
         }

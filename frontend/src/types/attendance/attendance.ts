@@ -37,3 +37,7 @@ export type BreakingType = {
 export type FinishBreakingType = {
     state: string;
 }
+
+export type FinishWorkType = {
+    state: string;
+}

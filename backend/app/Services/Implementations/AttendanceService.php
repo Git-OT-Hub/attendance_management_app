@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
+use App\Http\Requests\Attendance\FinishWorkRequest;
 
 class AttendanceService implements AttendanceServiceInterface
 {
@@ -89,6 +90,30 @@ class AttendanceService implements AttendanceServiceInterface
     {
         $res = null;
         $attendance = $this->attendanceRepository->updateBreakEnd($request);
+
+        // レスポンスデータ作成
+        if ($attendance) {
+            // 勤怠状態の日本語化
+            $attendanceState = $attendance->convertAttendanceState();
+
+            $res = [
+                'state' => $attendanceState,
+            ];
+        }
+
+        return $res;
+    }
+
+    /**
+     * 退勤処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param \App\Http\Requests\Attendance\FinishWorkRequest $request
+     * @return array{state: string}|null
+     */
+    public function clockOut(FinishWorkRequest $request): array|null
+    {
+        $res = null;
+        $attendance = $this->attendanceRepository->updateClockOut($request);
 
         // レスポンスデータ作成
         if ($attendance) {

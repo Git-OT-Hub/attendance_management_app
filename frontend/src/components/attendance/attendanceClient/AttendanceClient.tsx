@@ -3,7 +3,7 @@ import { useState, useLayoutEffect } from "react";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
 import { formatDateTime } from "@/lib/dateTime/date";
-import type { AttendanceType, WorkingStateType, BreakingType, FinishBreakingType } from "@/types/attendance/attendance";
+import type { AttendanceType, WorkingStateType, BreakingType, FinishBreakingType, FinishWorkType } from "@/types/attendance/attendance";
 import { HTTP_OK ,HTTP_CREATED } from "@/constants/httpStatus";
 import { flashStore } from "@/store/zustand/flashStore";
 import { userStore } from "@/store/zustand/userStore";
@@ -32,11 +32,9 @@ const AttendanceClient = ({
         } else {
             startTime = formatDateTime();
         }
-        console.log(startTime);
 
         apiClient.get(`/api/attendance/state?start_time=${encodeURIComponent(startTime)}`)
             .then((res) => {
-                console.log('useEffect: ', res);
                 if (res.status === HTTP_OK && res.data.state === "勤務外") {
                     setWorkingState(res.data.state);
                     return;
@@ -57,7 +55,7 @@ const AttendanceClient = ({
     }, []);
 
     const startWorking = () => {
-        if (confirm("この操作は、取り消しできませんがよろしいですか？")) {
+        if (confirm("出勤しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
             const startTime = formatDateTime();
             const data = {
                 start_time: startTime,
@@ -69,7 +67,6 @@ const AttendanceClient = ({
             localStorage.setItem(`dateTime_${loginUserId}`, startTime);
 
             apiClient.post('/api/attendance/work', data).then((res: AxiosResponse<AttendanceType>) => {
-                console.log('startWorking: ', res);
                 if (res.status !== HTTP_CREATED) {
                     console.error('予期しないエラー: ', res.status);
                     return;
@@ -98,8 +95,42 @@ const AttendanceClient = ({
         }
     };
 
-    const leaveWork = () => {
+    const finishWork = () => {
+        if (confirm("退勤しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
+            const finishWorkTime = formatDateTime();
+            const attendanceId = localStorage.getItem(`attendance_id_${loginUserId}`);
+            const data = {
+                attendance_id: Number(attendanceId),
+                end_time: finishWorkTime,
+                state: FINISHED,
+            };
 
+            apiClient.patch('/api/attendance/finish_work', data)
+                .then((res: AxiosResponse<FinishWorkType>) => {
+                    if (res.status !== HTTP_OK) {
+                        console.error('予期しないエラー: ', res.status);
+                        return;
+                    }
+
+                    if (res.data.state === "退勤済") {
+                        localStorage.removeItem(`breaking_id_${loginUserId}`);
+                        localStorage.removeItem(`attendance_id_${loginUserId}`);
+                        localStorage.removeItem(`dateTime_${loginUserId}`);
+                        setWorkingState(res.data.state);
+                    }
+
+                    createFlash({
+                        type: "success",
+                        message: "退勤しました"
+                    });
+                }).catch((e) => {
+                    createFlash({
+                        type: "error",
+                        message: "退勤処理に失敗しました"
+                    });
+                    console.error('予期しないエラー: ', e);
+                });
+        }
     };
 
     const takeBreak = () => {
@@ -114,7 +145,6 @@ const AttendanceClient = ({
 
             apiClient.post('/api/attendance/break', data)
                 .then((res: AxiosResponse<BreakingType>) => {
-                    console.log('takeBreak: ', res);
                     if (res.status !== HTTP_CREATED) {
                         console.error('予期しないエラー: ', res.status);
                         return;
@@ -157,7 +187,6 @@ const AttendanceClient = ({
 
             apiClient.patch('/api/attendance/finish_break', data)
                 .then((res: AxiosResponse<FinishBreakingType>) => {
-                    console.log('finishBreak: ', res);
                     if (res.status !== HTTP_OK) {
                         console.error('予期しないエラー: ', res.status);
                         return;
@@ -202,7 +231,7 @@ const AttendanceClient = ({
                     <div className={styles.multipleBtn}>
                         <AttendanceButton
                             text="退勤"
-                            fn={leaveWork}
+                            fn={finishWork}
                         />
                         <AttendanceButton
                             text="休憩入"
@@ -216,6 +245,10 @@ const AttendanceClient = ({
                         text="休憩戻"
                         fn={finishBreak}
                     />
+                )}
+
+                {workingState === "退勤済" && (
+                    <p>お疲れ様でした。</p>
                 )}
             </div>
         </div>

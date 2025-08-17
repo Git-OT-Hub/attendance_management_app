@@ -20,8 +20,8 @@ return new class extends Migration
             $table->date('start_date');
             $table->timestamp('start_time');
             $table->timestamp('end_time')->nullable();
-            $table->time('total_breaking_time')->nullable();
-            $table->time('total_working_time')->nullable();
+            $table->integer('total_breaking_time')->nullable();
+            $table->integer('actual_working_time')->nullable();
             $table->timestamp('corrected_start_time')->nullable();
             $table->timestamp('corrected_end_time')->nullable();
             $table->string('comment', 255)->nullable();

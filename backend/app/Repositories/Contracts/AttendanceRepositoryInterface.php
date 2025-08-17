@@ -7,6 +7,7 @@ use App\Models\Breaking;
 use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
+use App\Http\Requests\Attendance\FinishWorkRequest;
 
 interface AttendanceRepositoryInterface
 {
@@ -41,4 +42,12 @@ interface AttendanceRepositoryInterface
      * @return \App\Models\Attendance|null
      */
     public function updateBreakEnd(FinishBreakingRequest $request): Attendance|null;
+
+    /**
+     * 退勤処理を行い、その結果をAttendanceインスタンス、もしくは null で返す
+     *
+     * @param \App\Http\Requests\Attendance\FinishWorkRequest $request
+     * @return \App\Models\Attendance|null
+     */
+    public function updateClockOut(FinishWorkRequest $request): Attendance|null;
 }
