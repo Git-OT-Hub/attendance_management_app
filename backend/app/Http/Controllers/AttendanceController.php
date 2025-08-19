@@ -125,7 +125,7 @@ class AttendanceController extends Controller
     */
     public function list(Request $request): JsonResponse
     {
-        $date = (string)$request->query('date') . '-01';
+        $date = (string)$request->query('month') . '-01';
 
         $res = $this->attendanceService->attendanceList($date);
 
