@@ -7,10 +7,7 @@ const Time = () => {
 
     return (
         <p className={styles.timer}>
-            {time.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-            })}
+            {time}
         </p>
     )
 }

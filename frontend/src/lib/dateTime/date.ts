@@ -1,18 +1,17 @@
-export const formatDate = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
-    const day = now.getDay();
-    const week = ["日", "月", "火", "水", "木", "金", "土"][day];
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import "dayjs/locale/ja";
 
-    return `${year}年${month}月${date}日(${week})`;
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Asia/Tokyo");
+dayjs.locale("ja");
+
+export const formatDate = () => {
+    return dayjs().tz().format("YYYY年M月D日(ddd)");
 };
 
 export const formatDateTime = () => {
-    const now = new Date();
-    const date = now.toISOString().split('T')[0];
-    const time = now.toTimeString().split(' ')[0];
-
-    return `${date} ${time}`;
+    return dayjs().tz().second(0).format("YYYY-MM-DD HH:mm:ss");
 };
