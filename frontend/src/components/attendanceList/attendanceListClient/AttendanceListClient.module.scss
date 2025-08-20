@@ -1,0 +1,60 @@
+.content {
+    margin-top: 28px;
+}
+
+.header {
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    font-weight: bold;
+}
+
+.left {
+    flex: 1;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 0 4px;
+    cursor: pointer;
+
+    span {
+        color: #737373;
+    }
+}
+
+.center {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0 8px;
+
+    span {
+        font-size: 20px;
+    }
+}
+
+.right {
+    flex: 1;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 0 4px;
+    cursor: pointer;
+
+    span {
+        color: #737373;
+    }
+}
+
+.customArrow {
+    font-size: 20px;
+    color: #b2b2b2;
+}
+
+.customCalendar {
+    font-size: 24px;
+    color: #737373;
+}

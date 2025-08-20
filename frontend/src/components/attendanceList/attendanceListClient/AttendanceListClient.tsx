@@ -1,11 +1,13 @@
 "use client";
 import styles from "@/components/attendanceList/attendanceListClient/AttendanceListClient.module.scss";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
+import { FaRegCalendarAlt } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
 import type { AttendanceListType } from "@/types/attendance/attendance";
 import { HTTP_OK } from "@/constants/httpStatus";
-import { formatWithDayjs } from "@/lib/dateTime/date";
+import { formatWithDayjs, subtractWithDayjs, addWithDayjs } from "@/lib/dateTime/date";
 
 const AttendanceListClient = () => {
     const [month, setMonth] = useState<string>(formatWithDayjs({ format: "YYYY-MM" }));
@@ -29,21 +31,46 @@ const AttendanceListClient = () => {
     console.log(records);
 
     const previousMonth = () => {
-        // setMonth(dayjs(month).subtract(1, "month").format("YYYY-MM"));
+        setMonth(subtractWithDayjs({
+            day: month,
+            num: 1,
+            unit: "month",
+            format: "YYYY-MM"
+        }));
     };
 
     const nextMonth = () => {
-        // setMonth(dayjs(month).add(1, "month").format("YYYY-MM"));
+        setMonth(addWithDayjs({
+            day: month,
+            num: 1,
+            unit: "month",
+            format: "YYYY-MM"
+        }));
     };
 
     return (
-        <div>
-            <div>
-                <button onClick={previousMonth}>前月</button>
-                <h2>
-                    {formatWithDayjs({ day: month, format: "YYYY/MM" })}
-                </h2>
-                <button onClick={nextMonth}>翌月</button>
+        <div className={styles.content}>
+            <div className={styles.header}>
+                <div
+                    className={styles.left}
+                    onClick={previousMonth}
+                >
+                    <FaArrowLeft className={styles.customArrow} />
+                    <span>前月</span>
+                </div>
+                <div className={styles.center}>
+                    <FaRegCalendarAlt className={styles.customCalendar} />
+                    <span>
+                        {formatWithDayjs({ day: month, format: "YYYY/MM" })}
+                    </span>
+                </div>
+                <div
+                    className={styles.right}
+                    onClick={nextMonth}
+                >
+                    <span>翌月</span>
+                    <FaArrowRight className={styles.customArrow} />
+                </div>
             </div>
 
             <table>

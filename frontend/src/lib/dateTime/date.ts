@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import "dayjs/locale/ja";
-import type { FormatWithDayjsType } from "@/types/lib/dayjs/dayjs";
+import type { FormatWithDayjsType, AdjustmentWithDayjsType } from "@/types/lib/dayjs/dayjs";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -21,7 +21,10 @@ export const formatWithDayjs = ({ day, format }: FormatWithDayjsType) => {
     return dayjs(day).tz().format(format);
 };
 
-// subtractも引数を指定できるようにする
-export const subtractWithDayjs = ({ day, format }: FormatWithDayjsType) => {
-    return dayjs(day).tz().subtract(1, "month").format(format);
+export const subtractWithDayjs = ({ day, num, unit, format }: AdjustmentWithDayjsType) => {
+    return dayjs(day).tz().subtract(num, unit).format(format);
+};
+
+export const addWithDayjs = ({ day, num, unit, format }: AdjustmentWithDayjsType) => {
+    return dayjs(day).tz().add(num, unit).format(format);
 };
