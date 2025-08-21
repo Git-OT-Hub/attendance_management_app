@@ -1,5 +1,6 @@
 "use client";
 import styles from "@/components/attendanceList/attendanceListClient/AttendanceListClient.module.scss";
+import Link from "next/link";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { useState, useEffect } from "react";
@@ -27,8 +28,6 @@ const AttendanceListClient = () => {
                 console.error('予期しないエラー: ', e);
             });
     }, [month]);
-
-    console.log(records);
 
     const previousMonth = () => {
         setMonth(subtractWithDayjs({
@@ -73,8 +72,34 @@ const AttendanceListClient = () => {
                 </div>
             </div>
 
-            <table>
-                
+            <table className={styles.table}>
+                <thead className={styles.tableHead}>
+                    <tr>
+                        <th>日付</th>
+                        <th>出勤</th>
+                        <th>退勤</th>
+                        <th>休憩</th>
+                        <th>合計</th>
+                        <th>詳細</th>
+                    </tr>
+                </thead>
+                <tbody className={styles.tableBody}>
+                    {records.map((record, idx) => (
+                        <tr key={idx}>
+                            <td>{record.date}</td>
+                            <td>{record.start_time ? record.start_time : ""}</td>
+                            <td>{record.end_time ? record.end_time : ""}</td>
+                            <td>{record.total_breaking_time ? record.total_breaking_time : ""}</td>
+                            <td>{record.actual_working_time ? record.actual_working_time : ""}</td>
+                            <td>
+                                <Link
+                                    className={styles.tableLink}
+                                    href={record.id ? `/attendance/${record.id}` : ""}
+                                >詳細</Link>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
             </table>
         </div>
     )

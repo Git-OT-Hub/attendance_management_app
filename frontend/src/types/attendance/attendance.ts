@@ -50,3 +50,7 @@ export type AttendanceListType = {
     total_breaking_time: string | null;
     actual_working_time: string | null;
 }
+
+export type AttendanceShowPageProps = {
+    params: Promise<{ id: string }>
+}

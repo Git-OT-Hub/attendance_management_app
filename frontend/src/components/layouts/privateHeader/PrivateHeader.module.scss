@@ -3,6 +3,7 @@
     height: 60px;
     padding: 12px;
     display: flex;
+    flex-shrink: 0;
 }
 
 .header__image {
