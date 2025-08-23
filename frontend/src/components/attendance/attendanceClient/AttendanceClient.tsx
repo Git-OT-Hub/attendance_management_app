@@ -19,11 +19,11 @@ const AttendanceClient = ({
 }>) => {
     const [workingState, setWorkingState] = useState<WorkingStateType>("勤務外");
     const { createFlash } = flashStore();
-    const { loginUserId } = userStore();
+    const { user } = userStore();
 
     useLayoutEffect(() => {
         let startTime = "";
-        const savedDateTime = localStorage.getItem(`dateTime_${loginUserId}`);
+        const savedDateTime = localStorage.getItem(`dateTime_${user.id}`);
 
         // 出勤処理後は、ローカルストレージに保存された日時を使う
         // 理由：出勤処理後、日付が変わっても、休憩処理、退勤処理を正常に行えるようにするため
@@ -64,7 +64,7 @@ const AttendanceClient = ({
 
             // ローカルストレージに出勤日時を保存
             // useLayoutEffectで使用
-            localStorage.setItem(`dateTime_${loginUserId}`, startTime);
+            localStorage.setItem(`dateTime_${user.id}`, startTime);
 
             apiClient.post('/api/attendance/work', data).then((res: AxiosResponse<AttendanceType>) => {
                 if (res.status !== HTTP_CREATED) {
@@ -74,7 +74,7 @@ const AttendanceClient = ({
 
                 if (res.data.id) {
                     // 休憩処理、退勤処理に使用
-                    localStorage.setItem(`attendance_id_${loginUserId}`, String(res.data.id));
+                    localStorage.setItem(`attendance_id_${user.id}`, String(res.data.id));
                 }
 
                 if (res.data.state === "出勤中") {
@@ -98,7 +98,7 @@ const AttendanceClient = ({
     const finishWork = () => {
         if (confirm("退勤しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
             const finishWorkTime = formatDateTime();
-            const attendanceId = localStorage.getItem(`attendance_id_${loginUserId}`);
+            const attendanceId = localStorage.getItem(`attendance_id_${user.id}`);
             const data = {
                 attendance_id: Number(attendanceId),
                 end_time: finishWorkTime,
@@ -113,9 +113,9 @@ const AttendanceClient = ({
                     }
 
                     if (res.data.state === "退勤済") {
-                        localStorage.removeItem(`breaking_id_${loginUserId}`);
-                        localStorage.removeItem(`attendance_id_${loginUserId}`);
-                        localStorage.removeItem(`dateTime_${loginUserId}`);
+                        localStorage.removeItem(`breaking_id_${user.id}`);
+                        localStorage.removeItem(`attendance_id_${user.id}`);
+                        localStorage.removeItem(`dateTime_${user.id}`);
                         setWorkingState(res.data.state);
                     }
 
@@ -136,7 +136,7 @@ const AttendanceClient = ({
     const takeBreak = () => {
         if (confirm("休憩に入りますか？")) {
             const breakStartTime = formatDateTime();
-            const attendanceId = localStorage.getItem(`attendance_id_${loginUserId}`);
+            const attendanceId = localStorage.getItem(`attendance_id_${user.id}`);
             const data = {
                 attendance_id: Number(attendanceId),
                 start_time: breakStartTime,
@@ -152,7 +152,7 @@ const AttendanceClient = ({
 
                     if (res.data.breaking_id) {
                         // 休憩終了処理に使用
-                        localStorage.setItem(`breaking_id_${loginUserId}`, String(res.data.breaking_id));
+                        localStorage.setItem(`breaking_id_${user.id}`, String(res.data.breaking_id));
                     }
 
                     if (res.data.state === "休憩中") {
@@ -176,8 +176,8 @@ const AttendanceClient = ({
     const finishBreak = () => {
         if (confirm("休憩を終了しますか？")) {
             const finishBreakTime = formatDateTime();
-            const attendanceId = localStorage.getItem(`attendance_id_${loginUserId}`);
-            const breakingId = localStorage.getItem(`breaking_id_${loginUserId}`);
+            const attendanceId = localStorage.getItem(`attendance_id_${user.id}`);
+            const breakingId = localStorage.getItem(`breaking_id_${user.id}`);
             const data = {
                 attendance_id: Number(attendanceId),
                 breaking_id: Number(breakingId),
@@ -193,7 +193,7 @@ const AttendanceClient = ({
                     }
 
                     if (res.data.state === "出勤中") {
-                        localStorage.removeItem(`breaking_id_${loginUserId}`);
+                        localStorage.removeItem(`breaking_id_${user.id}`);
                         setWorkingState(res.data.state);
                     }
 

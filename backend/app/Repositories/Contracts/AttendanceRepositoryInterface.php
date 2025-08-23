@@ -59,4 +59,15 @@ interface AttendanceRepositoryInterface
      * @return \Illuminate\Database\Eloquent\Collection<string, \App\Models\Attendance>|null
      */
     public function findAttendanceList(string $date): Collection|null;
+
+    /**
+     * ログインユーザーの勤怠における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   attendance: \App\Models\Attendance,
+     *   breakings: \Illuminate\Database\Eloquent\Collection<int, \App\Models\Breaking>
+     * }|null
+     */
+    public function findAttendanceShow(string $id): array|null;
 }

@@ -16,7 +16,7 @@ const VerifiedAuthGuard = ({
 }>) => {
     const [loading, setLoading] = useState<boolean>(true);
     const { createFlash } = flashStore();
-    const { setUserId } = userStore();
+    const { setUser } = userStore();
     const router = useRouter();
 
     // ログイン済み、かつ、メール認証済みかどうかを検証
@@ -37,7 +37,10 @@ const VerifiedAuthGuard = ({
                 return;
             }
 
-            setUserId(res.data.id);
+            setUser({
+                id: res.data.id,
+                name: res.data.name,
+            });
 
             setLoading(false);
         }).catch((e) => {

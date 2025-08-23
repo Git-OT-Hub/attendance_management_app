@@ -139,7 +139,8 @@ class AttendanceService implements AttendanceServiceInterface
      * start_time: string|null,
      * end_time: string|null,
      * total_breaking_time: int|null,
-     * actual_working_time: int|null
+     * actual_working_time: int|null,
+     * year_month: string
      * }>|null
      */
     public function attendanceList(string $date): array|null
@@ -164,6 +165,7 @@ class AttendanceService implements AttendanceServiceInterface
                     'end_time' => $attendance?->end_time ? Carbon::parse($attendance->end_time)->format('H:i') : null,
                     'total_breaking_time' => $this->formatSecondsToHoursMinutes($attendance?->total_breaking_time),
                     'actual_working_time' => $this->formatSecondsToHoursMinutes($attendance?->actual_working_time),
+                    'year_month' => $dateTime->format('Y-m-d'),
                 ];
             }
 
@@ -201,5 +203,63 @@ class AttendanceService implements AttendanceServiceInterface
         $minutes = intdiv($seconds % 3600, 60);
 
         return sprintf('%d:%02d', $hours, $minutes);
+    }
+
+    /**
+     * ログインユーザーの勤怠における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   attendance_id: int,
+     *   attendance_start_time: string,
+     *   attendance_end_time: string|null,
+     *   breakings: array<string, array{
+     *     breaking_id: int,
+     *     breaking_start_time: string,
+     *     breaking_end_time: string|null,
+     *   }>|null
+     * }|null
+     */
+    public function attendanceShow(string $id): array|null
+    {
+        $res = $this->attendanceRepository->findAttendanceShow($id);
+
+        if (!$res) {
+            return null;
+        }
+
+        $attendanceData = $res['attendance'];
+        $breakings = $res['breakings'];
+        $resBreakings = [];
+
+        // 休憩データの加工
+        foreach ($breakings as $idx => $breaking) {
+            $key = $idx === 0 ? '休憩' : '休憩' . ($idx + 1);
+
+            $resBreakings[$key] = [
+                'breaking_id'         => $breaking->id,
+                'breaking_start_time' => $breaking->start_time
+                    ? Carbon::parse($breaking->start_time)->format('H:i')
+                    : null,
+                'breaking_end_time'   => $breaking->end_time
+                    ? Carbon::parse($breaking->end_time)->format('H:i')
+                    : null,
+            ];
+        }
+
+        // 休憩データの数 +1 の空枠を追加
+        $nextKey = count($breakings) === 0 ? '休憩' : '休憩' . (count($breakings) + 1);
+        $resBreakings[$nextKey] = [];
+
+        return [
+            'attendance_id'         => $attendanceData->id,
+            'attendance_start_time' => $attendanceData->start_time
+                ? Carbon::parse($attendanceData->start_time)->format('H:i')
+                : null,
+            'attendance_end_time'   => $attendanceData->end_time
+                ? Carbon::parse($attendanceData->end_time)->format('H:i')
+                : null,
+            'breakings'             => $resBreakings,
+        ];
     }
 }

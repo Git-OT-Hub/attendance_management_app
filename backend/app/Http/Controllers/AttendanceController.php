@@ -10,6 +10,7 @@ use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
 use App\Http\Requests\Attendance\FinishWorkRequest;
+use App\Models\Attendance;
 
 class AttendanceController extends Controller
 {
@@ -132,6 +133,29 @@ class AttendanceController extends Controller
         if (!$res) {
             return response()->json([
                 'message' => '勤怠一覧の取得に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
+    }
+
+    /**
+     * ログインユーザーの勤怠における詳細情報を取得し、その結果を JSON形式で返す
+     *
+     * @param  string $id
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function show(string $id): JsonResponse
+    {
+        // ポリシーの呼び出し
+        $attendance = Attendance::find($id);
+        $this->authorize('view', $attendance);
+
+        $res = $this->attendanceService->attendanceShow($id);
+
+        if (!$res) {
+            return response()->json([
+                'message' => '勤怠詳細の取得に失敗しました'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

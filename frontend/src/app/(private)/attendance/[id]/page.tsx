@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import type { AttendanceShowPageProps } from "@/types/attendance/attendance";
+import styles from "@/app/(private)/attendance/[id]/AttendanceShowPage.module.scss";
+import AttendanceShowClient from "@/components/attendanceShow/attendanceShowClient/AttendanceShowClient";
 
 export const metadata: Metadata = {
     title: "勤怠詳細",
@@ -8,10 +10,14 @@ export const metadata: Metadata = {
 
 const AttendanceShowPage = async ({params}: AttendanceShowPageProps) => {
     const { id } = await params;
-    console.log(id);
 
     return (
-        <div>AttendanceShowPage</div>
+        <>
+            <div className={styles.content}>
+                <h1>勤怠詳細</h1>
+                <AttendanceShowClient id={id}/>
+            </div>
+        </>
     )
 }
 

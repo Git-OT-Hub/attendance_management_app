@@ -45,5 +45,7 @@ Route::middleware(['auth:sanctum'])->group(function() {
         Route::patch('/attendance/finish_work', [AttendanceController::class, 'finishWork']);
         // 勤怠一覧取得
         Route::get('/attendance/list', [AttendanceController::class, 'list']);
+        // 勤怠詳細
+        Route::get('/attendance/{id}', [AttendanceController::class, 'show']);
     });
 });

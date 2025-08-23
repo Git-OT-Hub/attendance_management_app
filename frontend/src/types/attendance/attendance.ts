@@ -49,8 +49,28 @@ export type AttendanceListType = {
     end_time: string | null;
     total_breaking_time: string | null;
     actual_working_time: string | null;
+    year_month: string;
 }
 
 export type AttendanceShowPageProps = {
     params: Promise<{ id: string }>
 }
+
+export type AttendanceShowClientProps = {
+    id: string;
+}
+
+export type BreakingShowType = {
+    breaking_id?: number;
+    breaking_start_time?: string;
+    breaking_end_time?: string | null;
+};
+
+export type AttendanceShowType = {
+    attendance_id: number;
+    attendance_start_time: string;
+    attendance_end_time: string | null;
+    breakings: {
+        [key: string]: BreakingShowType;
+    };
+};

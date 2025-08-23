@@ -60,8 +60,26 @@ interface AttendanceServiceInterface
      * start_time: string|null,
      * end_time: string|null,
      * total_breaking_time: int|null,
-     * actual_working_time: int|null
+     * actual_working_time: int|null,
+     * year_month: string
      * }>|null
      */
     public function attendanceList(string $date): array|null;
+
+    /**
+     * ログインユーザーの勤怠における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   attendance_id: int,
+     *   attendance_start_time: string,
+     *   attendance_end_time: string|null,
+     *   breakings: array<string, array{
+     *     breaking_id: int,
+     *     breaking_start_time: string,
+     *     breaking_end_time: string|null,
+     *   }>|null
+     * }|null
+     */
+    public function attendanceShow(string $id): array|null;
 }

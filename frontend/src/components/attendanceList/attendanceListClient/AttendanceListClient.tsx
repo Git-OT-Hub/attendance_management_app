@@ -94,7 +94,10 @@ const AttendanceListClient = () => {
                             <td>
                                 <Link
                                     className={styles.tableLink}
-                                    href={record.id ? `/attendance/${record.id}` : ""}
+                                    href={record.id ? {
+                                        pathname: `/attendance/${record.id}`,
+                                        query: { year_month: record.year_month },
+                                    } : ""}
                                 >詳細</Link>
                             </td>
                         </tr>
