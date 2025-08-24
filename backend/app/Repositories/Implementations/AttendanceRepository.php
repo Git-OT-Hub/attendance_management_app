@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
 use App\Repositories\Contracts\AttendanceRepositoryInterface;
+use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Breaking;
 use App\Http\Requests\Attendance\WorkRequest;
@@ -197,6 +198,7 @@ class AttendanceRepository implements AttendanceRepositoryInterface
      *
      * @param string $id
      * @return array{
+     *   user: \App\Models\User,
      *   attendance: \App\Models\Attendance,
      *   breakings: \Illuminate\Database\Eloquent\Collection<int, \App\Models\Breaking>
      * }|null
@@ -206,10 +208,12 @@ class AttendanceRepository implements AttendanceRepositoryInterface
         try {
             $attendance = Attendance::find($id);
             $breakings = $attendance->breakings()->orderBy('id', 'asc')->get();
+            $user = Auth::user();
 
             return [
+                'user'       => $user,
                 'attendance' => $attendance,
-                'breakings'   => $breakings,
+                'breakings'  => $breakings,
             ];
         } catch (\Throwable $e) {
             return null;

@@ -65,6 +65,7 @@ interface AttendanceRepositoryInterface
      *
      * @param string $id
      * @return array{
+     *   user: \App\Models\User,
      *   attendance: \App\Models\Attendance,
      *   breakings: \Illuminate\Database\Eloquent\Collection<int, \App\Models\Breaking>
      * }|null

@@ -210,7 +210,9 @@ class AttendanceService implements AttendanceServiceInterface
      *
      * @param string $id
      * @return array{
+     *   user_name: string,
      *   attendance_id: int,
+     *   attendance_start_date: string,
      *   attendance_start_time: string,
      *   attendance_end_time: string|null,
      *   breakings: array<string, array{
@@ -230,6 +232,7 @@ class AttendanceService implements AttendanceServiceInterface
 
         $attendanceData = $res['attendance'];
         $breakings = $res['breakings'];
+        $user = $res['user'];
         $resBreakings = [];
 
         // 休憩データの加工
@@ -239,10 +242,10 @@ class AttendanceService implements AttendanceServiceInterface
             $resBreakings[$key] = [
                 'breaking_id'         => $breaking->id,
                 'breaking_start_time' => $breaking->start_time
-                    ? Carbon::parse($breaking->start_time)->format('H:i')
+                    ? $breaking->start_time
                     : null,
                 'breaking_end_time'   => $breaking->end_time
-                    ? Carbon::parse($breaking->end_time)->format('H:i')
+                    ? $breaking->end_time
                     : null,
             ];
         }
@@ -252,12 +255,14 @@ class AttendanceService implements AttendanceServiceInterface
         $resBreakings[$nextKey] = [];
 
         return [
+            'user_name'             => $user->name,
             'attendance_id'         => $attendanceData->id,
+            'attendance_start_date' => $attendanceData->start_date,
             'attendance_start_time' => $attendanceData->start_time
-                ? Carbon::parse($attendanceData->start_time)->format('H:i')
+                ? $attendanceData->start_time
                 : null,
             'attendance_end_time'   => $attendanceData->end_time
-                ? Carbon::parse($attendanceData->end_time)->format('H:i')
+                ? $attendanceData->end_time
                 : null,
             'breakings'             => $resBreakings,
         ];

@@ -67,10 +67,23 @@ export type BreakingShowType = {
 };
 
 export type AttendanceShowType = {
+    user_name: string;
     attendance_id: number;
+    attendance_start_date: string;
     attendance_start_time: string;
     attendance_end_time: string | null;
     breakings: {
         [key: string]: BreakingShowType;
     };
 };
+
+export type AttendanceShowUseState = {
+    attendance_id: number;
+    attendance_start_time: string;
+    attendance_end_time: string | null;
+}
+
+export type AttendanceShowNameAndDate = {
+    user_name: string;
+    attendance_start_date: string;
+}

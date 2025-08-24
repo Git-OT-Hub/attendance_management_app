@@ -71,7 +71,9 @@ interface AttendanceServiceInterface
      *
      * @param string $id
      * @return array{
+     *   user_name: string,
      *   attendance_id: int,
+     *   attendance_start_date: string,
      *   attendance_start_time: string,
      *   attendance_end_time: string|null,
      *   breakings: array<string, array{

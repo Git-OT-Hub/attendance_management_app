@@ -10,6 +10,7 @@ use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
 use App\Http\Requests\Attendance\FinishWorkRequest;
+use App\Http\Requests\Attendance\AttendanceCorrectionRequest;
 use App\Models\Attendance;
 
 class AttendanceController extends Controller
@@ -160,5 +161,26 @@ class AttendanceController extends Controller
         }
 
         return response()->json($res, Response::HTTP_OK);
+    }
+
+    /**
+     * 勤怠修正処理を行い、その結果を JSON形式で返す
+     *
+     * @param \App\Http\Requests\Attendance\AttendanceCorrectionRequest $request
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function correction(AttendanceCorrectionRequest $request): JsonResponse
+    {
+        // $res = $this->attendanceService->attendanceCorrection($request);
+
+        // if (!$res) {
+        //     return response()->json([
+        //         'message' => '勤怠修正処理に失敗しました'
+        //     ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        // }
+
+        // return response()->json($res, Response::HTTP_OK);
+
+        return response()->json("success!!", Response::HTTP_OK);
     }
 }

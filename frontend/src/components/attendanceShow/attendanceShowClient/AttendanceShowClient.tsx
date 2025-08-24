@@ -2,33 +2,37 @@
 import styles from "@/components/attendanceShow/attendanceShowClient/AttendanceShowClient.module.scss";
 import type { AttendanceShowClientProps } from "@/types/attendance/attendance";
 import { useLayoutEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
-import type { AttendanceShowType } from "@/types/attendance/attendance";
-import { HTTP_OK, HTTP_FORBIDDEN } from "@/constants/httpStatus";
-import { userStore } from "@/store/zustand/userStore";
+import type { AttendanceShowType, BreakingShowType, AttendanceShowUseState, AttendanceShowNameAndDate } from "@/types/attendance/attendance";
+import type { ValidationErrorsType } from "@/types/errors/errors";
+import { HTTP_OK, HTTP_FORBIDDEN, HTTP_UNPROCESSABLE_ENTITY } from "@/constants/httpStatus";
 import { formatWithDayjs } from "@/lib/dateTime/date";
 import { flashStore } from "@/store/zustand/flashStore";
 import Loading from "@/components/ui/loading/Loading";
+import FormButton from "@/components/ui/button/FormButton";
+import ValidationErrors from "@/components/ui/errors/ValidationErrors";
 
 const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
     const [loading, setLoading] = useState<boolean>(true);
-    const { user } = userStore();
-    const searchParams = useSearchParams();
-    const yearMonth = searchParams.get('year_month');
     const { createFlash } = flashStore();
     const router = useRouter();
-    const [attendanceStartTime, setAttendanceStartTime] = useState<string>('');
-    const [attendanceEndTime, setAttendanceEndTime] = useState<string>('');
 
-    if (!yearMonth) {
-        createFlash({
-            type: "error",
-            message: "詳細ボタンから勤怠詳細画面を開いてください"
-        });
-        router.push('/attendance/list');
-    }
+    const [nameAndDate, setNameAndDate] = useState<AttendanceShowNameAndDate>({
+        user_name: '',
+        attendance_start_date: '',
+    });
+    const [attendance, setAttendance] = useState<AttendanceShowUseState>({
+        attendance_id: 0,
+        attendance_start_time: '',
+        attendance_end_time: ''
+    });
+    const [breakings, setBreakings] = useState<{ [key: string]: BreakingShowType }>({});
+    const [comment, setComment] = useState<string>('');
+    const [errors, setErrors] = useState<ValidationErrorsType>({
+        errors: {}
+    });
 
     useLayoutEffect(() => {
         apiClient.get(`/api/attendance/${id}`)
@@ -40,11 +44,16 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
 
                 console.log(res);
 
-                setAttendanceStartTime(res.data.attendance_start_time);
-                if (res.data.attendance_end_time) {
-                    setAttendanceEndTime(res.data.attendance_end_time);
-                }
-
+                setNameAndDate({
+                    user_name: res.data.user_name,
+                    attendance_start_date: res.data.attendance_start_date,
+                });
+                setAttendance({
+                    attendance_id: res.data.attendance_id,
+                    attendance_start_time: res.data.attendance_start_time,
+                    attendance_end_time: res.data.attendance_end_time
+                });
+                setBreakings(res.data.breakings);
                 setLoading(false);
             })
             .catch((e) => {
@@ -67,8 +76,51 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
             });
     }, [id]);
 
-    const correction = () => {
+    const handleBreakingChange = (
+        key: string,
+        field: "breaking_start_time" | "breaking_end_time",
+        value: string
+    ) => {
+        setBreakings((prev) => ({
+            ...prev,
+            [key]: {
+                ...prev[key],
+                [field]: value
+            }
+        }));
+    };
 
+    const correction = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const data = {
+            attendance,
+            breakings,
+            comment
+        };
+        console.log(data);
+
+        if (confirm("修正しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
+            apiClient.patch('/api/attendance/correction', data)
+                .then((res) => {
+                    if (res.status !== HTTP_OK) {
+                        console.error('予期しないエラー: ', res.status);
+                        return;
+                    }
+
+                    console.log(res);
+                })
+                .catch((e) => {
+                    // バリデーションエラー表示
+                    if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {
+                        setErrors({errors: {...e.response.data.errors}});
+
+                        return;
+                    }
+
+                    console.error('予期しないエラー: ', e);
+                });
+        }
     };
 
     if (loading) {
@@ -84,52 +136,125 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                     <tbody className={styles.tableBody}>
                         <tr>
                             <th scope="row">名前</th>
-                            <td></td>
-                            <td>{user.name}</td>
+                            <td>{nameAndDate.user_name}</td>
                             <td></td>
                             <td></td>
                             <td colSpan={2}></td>
                         </tr>
                         <tr>
                             <th scope="row">日付</th>
-                            <td></td>
                             <td>
-                                {yearMonth ? formatWithDayjs({
-                                    day: yearMonth,
+                                {formatWithDayjs({
+                                    day: nameAndDate.attendance_start_date,
                                     format: "YYYY年",
-                                }) : null}
+                                })}
                             </td>
                             <td></td>
                             <td>
-                                {yearMonth ? formatWithDayjs({
-                                    day: yearMonth,
+                                {formatWithDayjs({
+                                    day: nameAndDate.attendance_start_date,
                                     format: "M月D日",
-                                }) : null}
+                                })}
                             </td>
                             <td colSpan={2}></td>
                         </tr>
                         <tr>
                             <th scope="row">出勤・勤怠</th>
-                            <td></td>
                             <td>
                                 <input
-                                    type="time"
-                                    value={attendanceStartTime}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAttendanceStartTime(e.target.value)}
+                                    type="datetime-local"
+                                    value={attendance.attendance_start_time}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                        setAttendance((prev) => ({
+                                            ...prev,
+                                            attendance_start_time: e.target.value
+                                        }))
+                                    }
                                 />
                             </td>
                             <td>〜</td>
                             <td>
                                 <input
-                                    type="time"
-                                    value={attendanceEndTime}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAttendanceEndTime(e.target.value)}
+                                    type="datetime-local"
+                                    value={attendance.attendance_end_time || ""}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                        setAttendance((prev) => ({
+                                            ...prev,
+                                            attendance_end_time: e.target.value
+                                        }))
+                                    }
                                 />
                             </td>
-                            <td colSpan={2}></td>
+                            <td colSpan={2}>
+                                <ValidationErrors
+                                    errorKey="attendance.attendance_start_time"
+                                    errors={errors}
+                                />
+                                <ValidationErrors
+                                    errorKey="attendance.attendance_end_time"
+                                    errors={errors}
+                                />
+                            </td>
+                        </tr>
+                        {Object.entries(breakings).map(([label, breaking]) => (
+                            <tr key={label}>
+                                <th scope="row">{label}</th>
+                                <td>
+                                    <input
+                                        type="datetime-local"
+                                        value={breaking.breaking_start_time || ""}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                            handleBreakingChange(label, "breaking_start_time", e.target.value)
+                                        }
+                                    />
+                                </td>
+                                <td>〜</td>
+                                <td>
+                                    <input
+                                        type="datetime-local"
+                                        value={breaking.breaking_end_time || ""}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                            handleBreakingChange(label, "breaking_end_time", e.target.value)
+                                        }
+                                    />
+                                </td>
+                                <td colSpan={2}>
+                                    <ValidationErrors
+                                        errorKey={`breakings.${label}.breaking_start_time`}
+                                        errors={errors}
+                                    />
+                                    <ValidationErrors
+                                        errorKey={`breakings.${label}.breaking_end_time`}
+                                        errors={errors}
+                                    />
+                                </td>
+                            </tr>
+                        ))}
+                        <tr>
+                            <th scope="row">備考</th>
+                            <td colSpan={3}>
+                                <textarea
+                                    rows={3}
+                                    value={comment}
+                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
+                                />
+                            </td>
+                            <td colSpan={2}>
+                                <ValidationErrors
+                                    errorKey="comment"
+                                    errors={errors}
+                                />
+                            </td>
                         </tr>
                     </tbody>
                 </table>
+                <div className={styles.btnArea}>
+                    <div className={styles.btn}>
+                        <FormButton
+                            text="修正"
+                        />
+                    </div>
+                </div>
             </form>
         </div>
     )
