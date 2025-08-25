@@ -103,6 +103,7 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
         if (confirm("修正しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
             apiClient.patch('/api/attendance/correction', data)
                 .then((res) => {
+                    setErrors({errors: {}});
                     if (res.status !== HTTP_OK) {
                         console.error('予期しないエラー: ', res.status);
                         return;
