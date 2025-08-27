@@ -22,13 +22,8 @@ return new class extends Migration
             $table->timestamp('end_time')->nullable();
             $table->integer('total_breaking_time')->nullable();
             $table->integer('actual_working_time')->nullable();
-            $table->timestamp('corrected_start_time')->nullable();
-            $table->timestamp('corrected_end_time')->nullable();
-            $table->string('comment', 255)->nullable();
-            $table->boolean('is_correction_request')->nullable();
             $table->timestamp('correction_request_date')->nullable();
-            $table->boolean('is_approval')->nullable();
-            $table->timestamp('approval_date')->nullable();
+            $table->boolean('is_approved_history')->nullable();
             $table->tinyInteger('state');
             $table->timestamps();
 

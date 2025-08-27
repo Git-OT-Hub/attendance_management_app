@@ -100,7 +100,7 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
         };
         console.log(data);
 
-        if (confirm("修正しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
+        if (confirm("この内容で修正申請しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
             apiClient.patch('/api/attendance/correction', data)
                 .then((res) => {
                     setErrors({errors: {}});

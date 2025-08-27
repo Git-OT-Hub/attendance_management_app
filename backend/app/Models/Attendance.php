@@ -25,13 +25,8 @@ class Attendance extends Model
         'end_time',
         'total_breaking_time',
         'actual_working_time',
-        'corrected_start_time',
-        'corrected_end_time',
-        'comment',
-        'is_correction_request',
         'correction_request_date',
-        'is_approval',
-        'approval_date',
+        'is_approved_history',
         'state',
     ];
 
@@ -53,6 +48,16 @@ class Attendance extends Model
     public function breakings(): HasMany
     {
         return $this->hasMany(Breaking::class);
+    }
+
+    /**
+     * 勤怠に紐づく勤怠修正情報を取得するリレーション
+     *
+     * @return HasMany<\App\Models\AttendanceCorrection>
+     */
+    public function attendanceCorrections(): HasMany
+    {
+        return $this->hasMany(AttendanceCorrection::class);
     }
 
     /**

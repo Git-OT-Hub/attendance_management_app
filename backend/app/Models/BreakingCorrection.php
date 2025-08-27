@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Breaking extends Model
+class BreakingCorrection extends Model
 {
     use HasFactory;
 
@@ -16,18 +16,18 @@ class Breaking extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'attendance_id',
+        'attendance_correction_id',
         'start_time',
         'end_time',
     ];
 
     /**
-     * 休憩に紐づく勤怠を取得するリレーション
+     * 休憩修正情報に紐づく勤怠修正情報を取得するリレーション
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Attendance>
+     * @return BelongsTo<\App\Models\AttendanceCorrection>
      */
-    public function attendance(): BelongsTo
+    public function attendanceCorrection(): BelongsTo
     {
-        return $this->belongsTo(Attendance::class);
+        return $this->belongsTo(AttendanceCorrection::class);
     }
 }

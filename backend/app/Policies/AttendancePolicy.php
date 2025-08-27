@@ -37,7 +37,7 @@ class AttendancePolicy
      */
     public function update(User $user, Attendance $attendance): bool
     {
-        //
+        return $user->id === $attendance->user_id;
     }
 
     /**

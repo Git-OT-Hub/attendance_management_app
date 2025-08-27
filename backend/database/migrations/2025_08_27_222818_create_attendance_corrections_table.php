@@ -11,14 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('breakings', function (Blueprint $table) {
+        Schema::create('attendance_corrections', function (Blueprint $table) {
             $table->id();
             $table->foreignId('attendance_id')
                 ->constrained()
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
+            $table->date('start_date');
             $table->timestamp('start_time');
-            $table->timestamp('end_time')->nullable();
+            $table->timestamp('end_time');
+            $table->integer('total_breaking_time');
+            $table->integer('actual_working_time');
+            $table->string('comment', 255);
+            $table->timestamp('correction_request_date');
+            $table->timestamp('approval_date')->nullable();
+            $table->tinyInteger('state');
             $table->timestamps();
         });
     }
@@ -28,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('breakings');
+        Schema::dropIfExists('attendance_corrections');
     }
 };

@@ -166,21 +166,23 @@ class AttendanceController extends Controller
     /**
      * 勤怠修正処理を行い、その結果を JSON形式で返す
      *
-     * @param \App\Http\Requests\Attendance\AttendanceCorrectionRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @param AttendanceCorrectionRequest $request
+     * @return JsonResponse
     */
     public function correction(AttendanceCorrectionRequest $request): JsonResponse
     {
-        // $res = $this->attendanceService->attendanceCorrection($request);
+        // ポリシーの呼び出し
+        $attendance = Attendance::find($request->attendance['attendance_id']);
+        $this->authorize('update', $attendance);
 
-        // if (!$res) {
-        //     return response()->json([
-        //         'message' => '勤怠修正処理に失敗しました'
-        //     ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        // }
+        $res = $this->attendanceService->correctAttendance($request);
 
-        // return response()->json($res, Response::HTTP_OK);
+        if (!$res) {
+            return response()->json([
+                'message' => '勤怠修正処理に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
-        return response()->json("success!!", Response::HTTP_OK);
+        return response()->json("勤怠修正申請が完了しました", Response::HTTP_OK);
     }
 }

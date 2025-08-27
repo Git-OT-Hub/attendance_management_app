@@ -7,6 +7,7 @@ use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
 use App\Http\Requests\Attendance\FinishWorkRequest;
+use App\Http\Requests\Attendance\AttendanceCorrectionRequest;
 
 interface AttendanceServiceInterface
 {
@@ -84,4 +85,12 @@ interface AttendanceServiceInterface
      * }|null
      */
     public function attendanceShow(string $id): array|null;
+
+    /**
+     * 
+     *
+     * @param AttendanceCorrectionRequest $request
+     * @return 
+     */
+    public function correctAttendance(AttendanceCorrectionRequest $request);
 }
