@@ -28,6 +28,7 @@ class AttendanceCorrectionRequest extends FormRequest
         return [
             // 出勤・退勤
             'attendance.attendance_id' => ['required', 'integer'],
+            'attendance.attendance_start_date' => ['required', 'date'],
             'attendance.attendance_start_time' => ['required', 'date'],
             'attendance.attendance_end_time' => ['required', 'date'],
 
@@ -54,12 +55,25 @@ class AttendanceCorrectionRequest extends FormRequest
             $attendance = $this->input('attendance', []);
             $breakings  = $this->input('breakings', []);
 
-            if (!isset($attendance['attendance_start_time'], $attendance['attendance_end_time'])) {
+            if (!isset(
+                $attendance['attendance_start_date'],
+                $attendance['attendance_start_time'],
+                $attendance['attendance_end_time']
+            )) {
                 return;
             }
 
+            $startDate = Carbon::parse($attendance['attendance_start_date'])->format('Y-m-d');
             $start = Carbon::parse($attendance['attendance_start_time']);
             $end   = Carbon::parse($attendance['attendance_end_time']);
+
+            // 出勤日と出勤時間の年月日が一致しているか
+            if ($startDate !== $start->format('Y-m-d')) {
+                $validator->errors()->add(
+                    'attendance.attendance_start_time',
+                    '日付 と 出勤時間 の年月日が一致している必要があります。'
+                );
+            }
 
             // 出勤 が 退勤 より前、及び、退勤 が 出勤 より後になっているか
             if ($start->greaterThanOrEqualTo($end)) {

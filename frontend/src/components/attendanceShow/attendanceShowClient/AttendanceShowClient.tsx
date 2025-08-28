@@ -25,6 +25,7 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
     });
     const [attendance, setAttendance] = useState<AttendanceShowUseState>({
         attendance_id: 0,
+        attendance_start_date: '',
         attendance_start_time: '',
         attendance_end_time: ''
     });
@@ -50,6 +51,7 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                 });
                 setAttendance({
                     attendance_id: res.data.attendance_id,
+                    attendance_start_date: res.data.attendance_start_date,
                     attendance_start_time: res.data.attendance_start_time,
                     attendance_end_time: res.data.attendance_end_time
                 });

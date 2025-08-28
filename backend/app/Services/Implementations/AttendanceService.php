@@ -10,6 +10,7 @@ use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
 use App\Http\Requests\Attendance\FinishWorkRequest;
+use App\Http\Requests\Attendance\AttendanceCorrectionRequest;
 
 class AttendanceService implements AttendanceServiceInterface
 {
@@ -266,5 +267,27 @@ class AttendanceService implements AttendanceServiceInterface
                 : null,
             'breakings'             => $resBreakings,
         ];
+    }
+
+    /**
+     * 勤怠修正処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param AttendanceCorrectionRequest $request
+     * @return array{
+     *   user_name: string,
+     *   attendance_id: int,
+     *   attendance_start_date: string,
+     *   attendance_start_time: string,
+     *   attendance_end_time: string,
+     *   breakings: array<string, array{
+     *     breaking_id: int,
+     *     breaking_start_time: string,
+     *     breaking_end_time: string,
+     *   }>|null
+     * }|null
+     */
+    public function correctAttendance(AttendanceCorrectionRequest $request): array|null
+    {
+
     }
 }

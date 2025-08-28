@@ -183,6 +183,6 @@ class AttendanceController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json("勤怠修正申請が完了しました", Response::HTTP_OK);
+        return response()->json($res, Response::HTTP_OK);
     }
 }

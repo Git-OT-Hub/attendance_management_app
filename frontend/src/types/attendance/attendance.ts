@@ -79,6 +79,7 @@ export type AttendanceShowType = {
 
 export type AttendanceShowUseState = {
     attendance_id: number;
+    attendance_start_date: string;
     attendance_start_time: string;
     attendance_end_time: string | null;
 }
