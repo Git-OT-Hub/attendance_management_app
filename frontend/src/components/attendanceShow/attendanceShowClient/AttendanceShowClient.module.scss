@@ -51,11 +51,25 @@
     }
 }
 
+.comment {
+    text-align: start;
+
+    span {
+        line-height: 80px;
+        padding: 0 12px;
+    }
+}
+
 .btnArea {
     width: 100%;
     margin-top: 28px;
     display: flex;
     justify-content: end;
+}
+
+.btnAreaMessage {
+    color: #fb5555;
+    font-weight: bold;
 }
 
 .btn {

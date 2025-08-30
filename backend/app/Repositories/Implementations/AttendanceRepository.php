@@ -10,10 +10,13 @@ use App\Repositories\Contracts\AttendanceRepositoryInterface;
 use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Breaking;
+use App\Models\AttendanceCorrection;
+use App\Models\BreakingCorrection;
 use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
 use App\Http\Requests\Attendance\FinishWorkRequest;
+use App\Http\Requests\Attendance\AttendanceCorrectionRequest;
 
 class AttendanceRepository implements AttendanceRepositoryInterface
 {
@@ -199,22 +202,114 @@ class AttendanceRepository implements AttendanceRepositoryInterface
      * @param string $id
      * @return array{
      *   user: \App\Models\User,
-     *   attendance: \App\Models\Attendance,
-     *   breakings: \Illuminate\Database\Eloquent\Collection<int, \App\Models\Breaking>
+     *   attendance: \App\Models\Attendance|\App\Models\AttendanceCorrection,
+     *   breakings: \Illuminate\Database\Eloquent\Collection<int, \App\Models\Breaking|\App\Models\BreakingCorrection>
      * }|null
      */
     public function findAttendanceShow(string $id): array|null
     {
         try {
             $attendance = Attendance::find($id);
-            $breakings = $attendance->breakings()->orderBy('id', 'asc')->get();
             $user = Auth::user();
 
-            return [
-                'user'       => $user,
-                'attendance' => $attendance,
-                'breakings'  => $breakings,
-            ];
+            if ($attendance->correction_request_date) {
+                $attendanceCorrections = $attendance->attendanceCorrections()->where('approval_date', null)->get();
+                if (count($attendanceCorrections) !== 1) {
+                    return null;
+                }
+                $attendanceCorrection = $attendanceCorrections->first();
+
+                return [
+                    'user'       => $user,
+                    'attendance' => $attendanceCorrection,
+                    'breakings'  => $attendanceCorrection->breakingCorrections()->orderBy('id', 'asc')->get(),
+                ];
+            } else {
+                return [
+                    'user'       => $user,
+                    'attendance' => $attendance,
+                    'breakings'  => $attendance->breakings()->orderBy('id', 'asc')->get(),
+                ];
+            }
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * ログインユーザーの勤怠情報の修正を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param AttendanceCorrectionRequest $request
+     * @return array{
+     *   user: \App\Models\User,
+     *   attendance: \App\Models\AttendanceCorrection,
+     *   breakings: \Illuminate\Database\Eloquent\Collection<int, \App\Models\BreakingCorrection>
+     * }|null
+     */
+    public function updateAttendanceCorrection(AttendanceCorrectionRequest $request): array|null
+    {
+        try {
+            $res = DB::transaction(function () use($request) {
+                $attendanceId = $request->attendance['attendance_id'];
+                $user = Auth::user();
+
+                // 登録されている勤怠情報の一部データ更新
+                $attendance = Attendance::find($attendanceId);
+                if ($attendance->user_id !== $user->id) {
+                    return null;
+                }
+                $attendance->update([
+                    'correction_request_date' => Carbon::parse($request->correction_request_date)->format('Y-m-d H:i:s'),
+                ]);
+                $attendance = $attendance->fresh();
+
+                // 勤怠修正履歴の作成
+                $attendanceCorrection = AttendanceCorrection::create([
+                    'attendance_id' => $attendance->id,
+                    'start_date' => Carbon::parse($attendance->start_date)->format('Y-m-d'),
+                    'start_time' => Carbon::parse($request->attendance['attendance_start_time'])->format('Y-m-d H:i:s'),
+                    'end_time' => Carbon::parse($request->attendance['attendance_end_time'])->format('Y-m-d H:i:s'),
+                    'total_breaking_time' => 0,
+                    'actual_working_time' => 0,
+                    'comment' => $request->comment,
+                    'correction_request_date' => Carbon::parse($request->correction_request_date)->format('Y-m-d H:i:s'),
+                    'state' => $attendance->state,
+                ]);
+
+                // 休憩修正履歴の作成
+                $sortedBreakings = collect($request->breakings)
+                    // 空配列を除外
+                    ->filter(function ($breaking) {
+                        return !empty($breaking['breaking_start_time']) && !empty($breaking['breaking_end_time']);
+                    })
+                    // breaking_start_time の昇順で並べ替え
+                    ->sortBy(function ($breaking) {
+                        return Carbon::parse($breaking['breaking_start_time']);
+                    });
+                foreach ($sortedBreakings as $label => $breaking) {
+                    BreakingCorrection::create([
+                        'attendance_correction_id' => $attendanceCorrection->id,
+                        'start_time' => Carbon::parse($breaking['breaking_start_time'])->format('Y-m-d H:i:s'),
+                        'end_time' => Carbon::parse($breaking['breaking_end_time'])->format('Y-m-d H:i:s'),
+                    ]);
+                }
+
+                // 勤怠修正履歴に休憩時間、実勤務時間を登録
+                $totalBreakingTime = $attendanceCorrection->totalBreakingTime();
+                $actualWorkingTime = $attendanceCorrection->actualWorkingTime($totalBreakingTime);
+                $attendanceCorrection->update([
+                    'total_breaking_time' => $totalBreakingTime,
+                    'actual_working_time' => $actualWorkingTime,
+                ]);
+
+                return [
+                    'user'       => $user,
+                    'attendance' => $attendanceCorrection->fresh(),
+                    'breakings'  => $attendanceCorrection->breakingCorrections()->orderBy('id', 'asc')->get(),
+                ];
+            });
+
+            return $res;
         } catch (\Throwable $e) {
             return null;
         }

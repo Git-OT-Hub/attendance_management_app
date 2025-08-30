@@ -89,6 +89,11 @@ class Attendance extends Model
         $breakings = $this->breakings;
 
         foreach ($breakings as $breaking) {
+            // 休憩データがない場合はスキップ
+            if (empty($breaking->start_time) || empty($breaking->end_time)) {
+                continue;
+            }
+
             $start = Carbon::parse($breaking->start_time);
             $end   = Carbon::parse($breaking->end_time);
 

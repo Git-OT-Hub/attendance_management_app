@@ -9,6 +9,7 @@ use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
 use App\Http\Requests\Attendance\FinishWorkRequest;
+use App\Http\Requests\Attendance\AttendanceCorrectionRequest;
 
 interface AttendanceRepositoryInterface
 {
@@ -66,9 +67,21 @@ interface AttendanceRepositoryInterface
      * @param string $id
      * @return array{
      *   user: \App\Models\User,
-     *   attendance: \App\Models\Attendance,
-     *   breakings: \Illuminate\Database\Eloquent\Collection<int, \App\Models\Breaking>
+     *   attendance: \App\Models\Attendance|\App\Models\AttendanceCorrection,
+     *   breakings: \Illuminate\Database\Eloquent\Collection<int, \App\Models\Breaking|\App\Models\BreakingCorrection>
      * }|null
      */
     public function findAttendanceShow(string $id): array|null;
+
+    /**
+     * ログインユーザーの勤怠情報の修正を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param AttendanceCorrectionRequest $request
+     * @return array{
+     *   user: \App\Models\User,
+     *   attendance: \App\Models\AttendanceCorrection,
+     *   breakings: \Illuminate\Database\Eloquent\Collection<int, \App\Models\BreakingCorrection>
+     * }|null
+     */
+    public function updateAttendanceCorrection(AttendanceCorrectionRequest $request): array|null;
 }

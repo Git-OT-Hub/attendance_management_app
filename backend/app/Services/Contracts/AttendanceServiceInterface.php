@@ -77,6 +77,8 @@ interface AttendanceServiceInterface
      *   attendance_start_date: string,
      *   attendance_start_time: string,
      *   attendance_end_time: string|null,
+     *   attendance_correction_request_date: string|null,
+     *   comment?: string,
      *   breakings: array<string, array{
      *     breaking_id: int,
      *     breaking_start_time: string,
@@ -96,6 +98,8 @@ interface AttendanceServiceInterface
      *   attendance_start_date: string,
      *   attendance_start_time: string,
      *   attendance_end_time: string,
+     *   attendance_correction_request_date: string,
+     *   comment: string,
      *   breakings: array<string, array{
      *     breaking_id: int,
      *     breaking_start_time: string,

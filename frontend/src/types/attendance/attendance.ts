@@ -72,6 +72,8 @@ export type AttendanceShowType = {
     attendance_start_date: string;
     attendance_start_time: string;
     attendance_end_time: string | null;
+    attendance_correction_request_date: string | null;
+    comment?: string,
     breakings: {
         [key: string]: BreakingShowType;
     };
@@ -82,6 +84,7 @@ export type AttendanceShowUseState = {
     attendance_start_date: string;
     attendance_start_time: string;
     attendance_end_time: string | null;
+    attendance_correction_request_date: string | null;
 }
 
 export type AttendanceShowNameAndDate = {

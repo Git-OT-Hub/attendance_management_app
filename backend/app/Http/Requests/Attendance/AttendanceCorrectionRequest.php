@@ -40,6 +40,9 @@ class AttendanceCorrectionRequest extends FormRequest
             'breakings.*.breaking_id' => ['nullable', 'integer'],
             'breakings.*.breaking_start_time' => ['nullable', 'required_with:breakings.*.breaking_end_time', 'date'],
             'breakings.*.breaking_end_time'     => ['nullable', 'required_with:breakings.*.breaking_start_time', 'date'],
+
+            // 修正依頼日
+            'correction_request_date' => ['required', 'date'],
         ];
     }
 
@@ -139,6 +142,10 @@ class AttendanceCorrectionRequest extends FormRequest
             'breakings.*.breaking_start_time.date'         => '休憩開始時間 は正しい日付形式で入力してください。',
             'breakings.*.breaking_end_time.required_with'  => '休憩開始時間 がある場合は 休憩終了時間 を入力してください。',
             'breakings.*.breaking_end_time.date'           => '休憩終了時間 は正しい日付形式で入力してください。',
+
+            // 修正依頼日
+            'correction_request_date.required' => '修正依頼日 は必須です。',
+            'correction_request_date.date' => '修正依頼日 は正しい日付形式で入力してください。',
         ];
     }
 

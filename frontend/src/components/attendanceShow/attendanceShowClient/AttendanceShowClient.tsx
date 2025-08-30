@@ -8,7 +8,7 @@ import { AxiosResponse } from "axios";
 import type { AttendanceShowType, BreakingShowType, AttendanceShowUseState, AttendanceShowNameAndDate } from "@/types/attendance/attendance";
 import type { ValidationErrorsType } from "@/types/errors/errors";
 import { HTTP_OK, HTTP_FORBIDDEN, HTTP_UNPROCESSABLE_ENTITY } from "@/constants/httpStatus";
-import { formatWithDayjs } from "@/lib/dateTime/date";
+import { formatWithDayjs, formatDateTime } from "@/lib/dateTime/date";
 import { flashStore } from "@/store/zustand/flashStore";
 import Loading from "@/components/ui/loading/Loading";
 import FormButton from "@/components/ui/button/FormButton";
@@ -27,7 +27,8 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
         attendance_id: 0,
         attendance_start_date: '',
         attendance_start_time: '',
-        attendance_end_time: ''
+        attendance_end_time: '',
+        attendance_correction_request_date: '',
     });
     const [breakings, setBreakings] = useState<{ [key: string]: BreakingShowType }>({});
     const [comment, setComment] = useState<string>('');
@@ -53,9 +54,13 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                     attendance_id: res.data.attendance_id,
                     attendance_start_date: res.data.attendance_start_date,
                     attendance_start_time: res.data.attendance_start_time,
-                    attendance_end_time: res.data.attendance_end_time
+                    attendance_end_time: res.data.attendance_end_time,
+                    attendance_correction_request_date: res.data.attendance_correction_request_date,
                 });
                 setBreakings(res.data.breakings);
+                if (res.data.comment) {
+                    setComment(res.data.comment);
+                }
                 setLoading(false);
             })
             .catch((e) => {
@@ -98,13 +103,14 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
         const data = {
             attendance,
             breakings,
-            comment
+            comment,
+            correction_request_date: formatDateTime()
         };
         console.log(data);
 
         if (confirm("この内容で修正申請しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
             apiClient.patch('/api/attendance/correction', data)
-                .then((res) => {
+                .then((res: AxiosResponse<AttendanceShowType>) => {
                     setErrors({errors: {}});
                     if (res.status !== HTTP_OK) {
                         console.error('予期しないエラー: ', res.status);
@@ -112,6 +118,28 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                     }
 
                     console.log(res);
+
+                    setNameAndDate({
+                        user_name: res.data.user_name,
+                        attendance_start_date: res.data.attendance_start_date,
+                    });
+                    setAttendance({
+                        attendance_id: res.data.attendance_id,
+                        attendance_start_date: res.data.attendance_start_date,
+                        attendance_start_time: res.data.attendance_start_time,
+                        attendance_end_time: res.data.attendance_end_time,
+                        attendance_correction_request_date: res.data.attendance_correction_request_date,
+                    });
+                    setBreakings(res.data.breakings);
+                    if (res.data.comment) {
+                        setComment(res.data.comment);
+                    }
+                    setLoading(false);
+
+                    createFlash({
+                        type: "success",
+                        message: "修正依頼しました"
+                    });
                 })
                 .catch((e) => {
                     // バリデーションエラー表示
@@ -164,29 +192,47 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                         <tr>
                             <th scope="row">出勤・勤怠</th>
                             <td>
-                                <input
-                                    type="datetime-local"
-                                    value={attendance.attendance_start_time}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                        setAttendance((prev) => ({
-                                            ...prev,
-                                            attendance_start_time: e.target.value
-                                        }))
-                                    }
-                                />
+                                {attendance.attendance_correction_request_date ? (
+                                    <span>
+                                        {attendance.attendance_start_time ? formatWithDayjs({
+                                            day: attendance.attendance_start_time,
+                                            format: 'YYYY/MM/DD HH:mm',
+                                        }) : ''}
+                                    </span>
+                                ) : (
+                                    <input
+                                        type="datetime-local"
+                                        value={attendance.attendance_start_time}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                            setAttendance((prev) => ({
+                                                ...prev,
+                                                attendance_start_time: e.target.value
+                                            }))
+                                        }
+                                    />
+                                )}
                             </td>
                             <td>〜</td>
                             <td>
-                                <input
-                                    type="datetime-local"
-                                    value={attendance.attendance_end_time || ""}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                        setAttendance((prev) => ({
-                                            ...prev,
-                                            attendance_end_time: e.target.value
-                                        }))
-                                    }
-                                />
+                                {attendance.attendance_correction_request_date ? (
+                                    <span>
+                                        {attendance.attendance_end_time ? formatWithDayjs({
+                                            day: attendance.attendance_end_time,
+                                            format: 'YYYY/MM/DD HH:mm',
+                                        }) : ''}
+                                    </span>
+                                ) : (
+                                    <input
+                                        type="datetime-local"
+                                        value={attendance.attendance_end_time || ""}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                            setAttendance((prev) => ({
+                                                ...prev,
+                                                attendance_end_time: e.target.value
+                                            }))
+                                        }
+                                    />
+                                )}
                             </td>
                             <td colSpan={2}>
                                 <ValidationErrors
@@ -203,23 +249,41 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                             <tr key={label}>
                                 <th scope="row">{label}</th>
                                 <td>
-                                    <input
-                                        type="datetime-local"
-                                        value={breaking.breaking_start_time || ""}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                            handleBreakingChange(label, "breaking_start_time", e.target.value)
-                                        }
-                                    />
+                                    {attendance.attendance_correction_request_date ? (
+                                        <span>
+                                            {breaking.breaking_start_time ? formatWithDayjs({
+                                                day: breaking.breaking_start_time,
+                                                format: 'YYYY/MM/DD HH:mm',
+                                            }) : ''}
+                                        </span>
+                                    ) : (
+                                        <input
+                                            type="datetime-local"
+                                            value={breaking.breaking_start_time || ""}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                                handleBreakingChange(label, "breaking_start_time", e.target.value)
+                                            }
+                                        />
+                                    )}
                                 </td>
                                 <td>〜</td>
                                 <td>
-                                    <input
-                                        type="datetime-local"
-                                        value={breaking.breaking_end_time || ""}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                            handleBreakingChange(label, "breaking_end_time", e.target.value)
-                                        }
-                                    />
+                                    {attendance.attendance_correction_request_date ? (
+                                        <span>
+                                            {breaking.breaking_end_time ? formatWithDayjs({
+                                                day: breaking.breaking_end_time,
+                                                format: 'YYYY/MM/DD HH:mm',
+                                            }) : ''}
+                                        </span>
+                                    ) : (
+                                        <input
+                                            type="datetime-local"
+                                            value={breaking.breaking_end_time || ""}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                                handleBreakingChange(label, "breaking_end_time", e.target.value)
+                                            }
+                                        />
+                                    )}
                                 </td>
                                 <td colSpan={2}>
                                     <ValidationErrors
@@ -235,12 +299,16 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                         ))}
                         <tr>
                             <th scope="row">備考</th>
-                            <td colSpan={3}>
-                                <textarea
-                                    rows={3}
-                                    value={comment}
-                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
-                                />
+                            <td colSpan={3} className={styles.comment}>
+                                {attendance.attendance_correction_request_date ? (
+                                    <span>{comment ? comment : ''}</span>
+                                ) : (
+                                    <textarea
+                                        rows={3}
+                                        value={comment}
+                                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
+                                    />
+                                )}
                             </td>
                             <td colSpan={2}>
                                 <ValidationErrors
@@ -252,11 +320,15 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                     </tbody>
                 </table>
                 <div className={styles.btnArea}>
-                    <div className={styles.btn}>
-                        <FormButton
-                            text="修正"
-                        />
-                    </div>
+                    {attendance.attendance_correction_request_date ? (
+                        <span className={styles.btnAreaMessage}>・承認待ちのため修正はできません。</span>
+                    ) : (
+                        <div className={styles.btn}>
+                            <FormButton
+                                text="修正"
+                            />
+                        </div>
+                    )}
                 </div>
             </form>
         </div>

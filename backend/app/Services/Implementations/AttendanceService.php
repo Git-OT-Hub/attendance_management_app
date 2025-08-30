@@ -216,6 +216,8 @@ class AttendanceService implements AttendanceServiceInterface
      *   attendance_start_date: string,
      *   attendance_start_time: string,
      *   attendance_end_time: string|null,
+     *   attendance_correction_request_date: string|null,
+     *   comment?: string,
      *   breakings: array<string, array{
      *     breaking_id: int,
      *     breaking_start_time: string,
@@ -251,22 +253,54 @@ class AttendanceService implements AttendanceServiceInterface
             ];
         }
 
-        // 休憩データの数 +1 の空枠を追加
-        $nextKey = count($breakings) === 0 ? '休憩' : '休憩' . (count($breakings) + 1);
-        $resBreakings[$nextKey] = [];
+        if ($attendanceData->correction_request_date) {
+            // 勤怠修正依頼を行い、承認待ちの場合
 
-        return [
-            'user_name'             => $user->name,
-            'attendance_id'         => $attendanceData->id,
-            'attendance_start_date' => $attendanceData->start_date,
-            'attendance_start_time' => $attendanceData->start_time
-                ? $attendanceData->start_time
-                : null,
-            'attendance_end_time'   => $attendanceData->end_time
-                ? $attendanceData->end_time
-                : null,
-            'breakings'             => $resBreakings,
-        ];
+            // 休憩データ無しの場合、空枠を１つ追加
+            if (count($breakings) === 0) {
+                $nextKey = '休憩';
+                $resBreakings[$nextKey] = [];
+            }
+
+            return [
+                'user_name'             => $user->name,
+                'attendance_id'         => $attendanceData->id,
+                'attendance_start_date' => $attendanceData->start_date,
+                'attendance_start_time' => $attendanceData->start_time
+                    ? $attendanceData->start_time
+                    : null,
+                'attendance_end_time'   => $attendanceData->end_time
+                    ? $attendanceData->end_time
+                    : null,
+                'attendance_correction_request_date' => $attendanceData->correction_request_date
+                    ? $attendanceData->correction_request_date
+                    : null,
+                'comment' => $attendanceData->comment,
+                'breakings'             => $resBreakings,
+            ];
+        } else {
+            // 勤怠修正依頼なしの場合
+
+            // 休憩データの数 +1 の空枠を追加
+            $nextKey = count($breakings) === 0 ? '休憩' : '休憩' . (count($breakings) + 1);
+            $resBreakings[$nextKey] = [];
+
+            return [
+                'user_name'             => $user->name,
+                'attendance_id'         => $attendanceData->id,
+                'attendance_start_date' => $attendanceData->start_date,
+                'attendance_start_time' => $attendanceData->start_time
+                    ? $attendanceData->start_time
+                    : null,
+                'attendance_end_time'   => $attendanceData->end_time
+                    ? $attendanceData->end_time
+                    : null,
+                'attendance_correction_request_date' => $attendanceData->correction_request_date
+                    ? $attendanceData->correction_request_date
+                    : null,
+                'breakings'             => $resBreakings,
+            ];
+        }
     }
 
     /**
@@ -279,6 +313,8 @@ class AttendanceService implements AttendanceServiceInterface
      *   attendance_start_date: string,
      *   attendance_start_time: string,
      *   attendance_end_time: string,
+     *   attendance_correction_request_date: string,
+     *   comment: string,
      *   breakings: array<string, array{
      *     breaking_id: int,
      *     breaking_start_time: string,
@@ -288,6 +324,53 @@ class AttendanceService implements AttendanceServiceInterface
      */
     public function correctAttendance(AttendanceCorrectionRequest $request): array|null
     {
+        $res = $this->attendanceRepository->updateAttendanceCorrection($request);
 
+        if (!$res) {
+            return null;
+        }
+
+        $attendanceData = $res['attendance'];
+        $breakings = $res['breakings'];
+        $user = $res['user'];
+        $resBreakings = [];
+
+        // 休憩データの加工
+        foreach ($breakings as $idx => $breaking) {
+            $key = $idx === 0 ? '休憩' : '休憩' . ($idx + 1);
+
+            $resBreakings[$key] = [
+                'breaking_id'         => $breaking->id,
+                'breaking_start_time' => $breaking->start_time
+                    ? $breaking->start_time
+                    : null,
+                'breaking_end_time'   => $breaking->end_time
+                    ? $breaking->end_time
+                    : null,
+            ];
+        }
+
+        // 休憩データ無しの場合、空枠を１つ追加
+        if (count($breakings) === 0) {
+            $nextKey = '休憩';
+            $resBreakings[$nextKey] = [];
+        }
+
+        return [
+            'user_name'             => $user->name,
+            'attendance_id'         => $attendanceData->id,
+            'attendance_start_date' => $attendanceData->start_date,
+            'attendance_start_time' => $attendanceData->start_time
+                ? $attendanceData->start_time
+                : null,
+            'attendance_end_time'   => $attendanceData->end_time
+                ? $attendanceData->end_time
+                : null,
+            'attendance_correction_request_date' => $attendanceData->correction_request_date
+                ? $attendanceData->correction_request_date
+                : null,
+            'comment' => $attendanceData->comment,
+            'breakings'             => $resBreakings,
+        ];
     }
 }
