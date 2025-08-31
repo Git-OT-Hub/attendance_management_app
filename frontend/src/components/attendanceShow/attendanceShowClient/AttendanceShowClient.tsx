@@ -44,8 +44,6 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                     return;
                 }
 
-                console.log(res);
-
                 setNameAndDate({
                     user_name: res.data.user_name,
                     attendance_start_date: res.data.attendance_start_date,
@@ -106,7 +104,6 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
             comment,
             correction_request_date: formatDateTime()
         };
-        console.log(data);
 
         if (confirm("この内容で修正申請しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
             apiClient.patch('/api/attendance/correction', data)
@@ -116,8 +113,6 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                         console.error('予期しないエラー: ', res.status);
                         return;
                     }
-
-                    console.log(res);
 
                     setNameAndDate({
                         user_name: res.data.user_name,

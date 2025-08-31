@@ -1,0 +1,77 @@
+.content {
+    margin-top: 28px;
+}
+
+.table {
+    width: 100%;
+    table-layout: fixed;
+    background: #fff;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.tableBody {
+    tr + tr {
+        border-top: 2px solid #e1e1e1;
+    }
+
+    th {
+        padding: 12px 40px;
+        text-align: start;
+        color: #737373;
+    }
+
+    td {
+        padding: 12px 0;
+    }
+
+    td:last-of-type {
+        padding: 12px 40px;
+        font-size: 12px;
+    }
+
+    input {
+        width: 100%;
+        border: 1px solid #e1e1e1;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    textarea {
+        width: 100%;
+        border: 1px solid #e1e1e1;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+}
+
+.comment {
+    text-align: start;
+
+    span {
+        line-height: 80px;
+        padding: 0 12px;
+    }
+}
+
+.btnArea {
+    width: 100%;
+    margin-top: 28px;
+    display: flex;
+    justify-content: end;
+}
+
+.btnAreaMessage {
+    color: #fb5555;
+    font-weight: bold;
+}
+
+.btn {
+    width: 16%;
+}

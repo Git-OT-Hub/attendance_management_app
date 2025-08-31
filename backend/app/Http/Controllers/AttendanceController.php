@@ -11,6 +11,7 @@ use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
 use App\Http\Requests\Attendance\FinishWorkRequest;
 use App\Http\Requests\Attendance\AttendanceCorrectionRequest;
+use App\Http\Requests\Attendance\AttendanceCreateRequest;
 use App\Models\Attendance;
 
 class AttendanceController extends Controller
@@ -184,5 +185,24 @@ class AttendanceController extends Controller
         }
 
         return response()->json($res, Response::HTTP_OK);
+    }
+
+    /**
+     * 勤怠新規登録を行い、その結果を JSON形式で返す
+     *
+     * @param  AttendanceCreateRequest $request
+     * @return JsonResponse
+     */
+    public function create(AttendanceCreateRequest $request): JsonResponse
+    {
+        $res = $this->attendanceService->createAttendance($request);
+
+        if (!$res) {
+            return response()->json([
+                'message' => '勤怠の新規登録に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_CREATED);
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Symfony\Component\HttpFoundation\Response;
 use Carbon\Carbon;
 
-class AttendanceCorrectionRequest extends FormRequest
+class AttendanceCreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,7 @@ class AttendanceCorrectionRequest extends FormRequest
     {
         return [
             // 出勤・退勤
-            'attendance.attendance_id' => ['required', 'integer'],
+            'attendance.attendance_id' => ['nullable', 'integer'],
             'attendance.attendance_start_date' => ['required', 'date'],
             'attendance.attendance_start_time' => ['required', 'date'],
             'attendance.attendance_end_time' => ['required', 'date'],
@@ -36,10 +36,8 @@ class AttendanceCorrectionRequest extends FormRequest
             'comment' => ['required', 'string', 'max:255'],
 
             // 休憩
-            'breakings' => ['array'],
-            'breakings.*.breaking_id' => ['nullable', 'integer'],
-            'breakings.*.breaking_start_time' => ['nullable', 'required_with:breakings.*.breaking_end_time', 'date'],
-            'breakings.*.breaking_end_time'     => ['nullable', 'required_with:breakings.*.breaking_start_time', 'date'],
+            'breaking.breaking_start_time' => ['nullable', 'required_with:breaking.breaking_end_time', 'date'],
+            'breaking.breaking_end_time'     => ['nullable', 'required_with:breaking.breaking_start_time', 'date'],
 
             // 修正依頼日
             'correction_request_date' => ['required', 'date'],
@@ -56,7 +54,7 @@ class AttendanceCorrectionRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $attendance = $this->input('attendance', []);
-            $breakings  = $this->input('breakings', []);
+            $breaking  = $this->input('breaking', []);
 
             if (!isset(
                 $attendance['attendance_start_date'],
@@ -85,31 +83,21 @@ class AttendanceCorrectionRequest extends FormRequest
             }
 
             // 休憩のチェック
-            $previousEnd = null;
-            foreach ($breakings as $key => $breaking) {
-                if (!isset($breaking['breaking_start_time'], $breaking['breaking_end_time'])) {
-                    continue;
-                }
+            if (!isset($breaking['breaking_start_time'], $breaking['breaking_end_time'])) {
+                return;
+            }
 
-                $bStart = Carbon::parse($breaking['breaking_start_time']);
-                $bEnd   = Carbon::parse($breaking['breaking_end_time']);
+            $bStart = Carbon::parse($breaking['breaking_start_time']);
+            $bEnd   = Carbon::parse($breaking['breaking_end_time']);
 
-                // 休憩開始が 出勤 と 退勤 の間にあるか
-                if ($bStart->lessThanOrEqualTo($start) || $bStart->greaterThanOrEqualTo($end)) {
-                    $validator->errors()->add("breakings.{$key}.breaking_start_time", "休憩開始時間 は 出勤 〜 退勤 の 間 である必要があります。");
-                }
+            // 休憩開始が 出勤 と 退勤 の間にあるか
+            if ($bStart->lessThanOrEqualTo($start) || $bStart->greaterThanOrEqualTo($end)) {
+                $validator->errors()->add("breaking.breaking_start_time", "休憩開始時間 は 出勤 〜 退勤 の 間 である必要があります。");
+            }
 
-                // 休憩終了が 休憩開始 と 退勤 の間にあるか
-                if ($bEnd->lessThanOrEqualTo($bStart) || $bEnd->greaterThanOrEqualTo($end)) {
-                    $validator->errors()->add("breakings.{$key}.breaking_end_time", "休憩終了時間 は 休憩開始 〜 退勤 の 間 である必要があります。");
-                }
-
-                // 現在の休憩開始時間が前の休憩終了時間より後にあるか
-                if ($previousEnd && $bStart->lessThanOrEqualTo($previousEnd)) {
-                    $validator->errors()->add("breakings.{$key}.breaking_start_time", "{$key} の 休憩開始時間 は 直前の休憩終了時間 より 後 である必要があります。");
-                }
-
-                $previousEnd = $bEnd;
+            // 休憩終了が 休憩開始 と 退勤 の間にあるか
+            if ($bEnd->lessThanOrEqualTo($bStart) || $bEnd->greaterThanOrEqualTo($end)) {
+                $validator->errors()->add("breaking.breaking_end_time", "休憩終了時間 は 休憩開始 〜 退勤 の 間 である必要があります。");
             }
         });
     }
@@ -123,7 +111,6 @@ class AttendanceCorrectionRequest extends FormRequest
     {
         return [
             // 出勤・退勤
-            'attendance.attendance_id.required' => '勤怠データIDは必須です。',
             'attendance.attendance_id.integer'  => '勤怠データIDは整数である必要があります。',
             'attendance.attendance_start_time.required' => '出勤時間 は必須です。',
             'attendance.attendance_start_time.date'     => '出勤時間 は正しい日付形式で入力してください。',
@@ -138,12 +125,10 @@ class AttendanceCorrectionRequest extends FormRequest
             'comment.max'      => '備考 は255文字以内で入力してください。',
 
             // 休憩
-            'breakings.array' => '休憩情報は配列で送信してください。',
-            'breakings.*.breaking_id.integer' => '休憩IDは整数である必要があります。',
-            'breakings.*.breaking_start_time.required_with' => '休憩終了時間 がある場合は 休憩開始時間 を入力してください。',
-            'breakings.*.breaking_start_time.date'         => '休憩開始時間 は正しい日付形式で入力してください。',
-            'breakings.*.breaking_end_time.required_with'  => '休憩開始時間 がある場合は 休憩終了時間 を入力してください。',
-            'breakings.*.breaking_end_time.date'           => '休憩終了時間 は正しい日付形式で入力してください。',
+            'breaking.breaking_start_time.required_with' => '休憩終了時間 がある場合は 休憩開始時間 を入力してください。',
+            'breaking.breaking_start_time.date'         => '休憩開始時間 は正しい日付形式で入力してください。',
+            'breaking.breaking_end_time.required_with'  => '休憩開始時間 がある場合は 休憩終了時間 を入力してください。',
+            'breaking.breaking_end_time.date'           => '休憩終了時間 は正しい日付形式で入力してください。',
 
             // 修正依頼日
             'correction_request_date.required' => '修正依頼日 は必須です。',

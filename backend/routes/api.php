@@ -49,5 +49,7 @@ Route::middleware(['auth:sanctum'])->group(function() {
         Route::get('/attendance/{id}', [AttendanceController::class, 'show']);
         // 勤怠修正
         Route::patch('/attendance/correction', [AttendanceController::class, 'correction']);
+        // 勤怠新規作成
+        Route::post('/attendance/create', [AttendanceController::class, 'create']);
     });
 });

@@ -8,6 +8,7 @@ use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
 use App\Http\Requests\Attendance\FinishWorkRequest;
 use App\Http\Requests\Attendance\AttendanceCorrectionRequest;
+use App\Http\Requests\Attendance\AttendanceCreateRequest;
 
 interface AttendanceServiceInterface
 {
@@ -108,4 +109,12 @@ interface AttendanceServiceInterface
      * }|null
      */
     public function correctAttendance(AttendanceCorrectionRequest $request): array|null;
+
+    /**
+     * 勤怠新規登録を行い、その結果を 整数 もしくは null で返す
+     *
+     * @param AttendanceCreateRequest $request
+     * @return int|null
+     */
+    public function createAttendance(AttendanceCreateRequest $request): int|null;
 }

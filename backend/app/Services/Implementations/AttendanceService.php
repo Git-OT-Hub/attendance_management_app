@@ -11,6 +11,7 @@ use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
 use App\Http\Requests\Attendance\FinishWorkRequest;
 use App\Http\Requests\Attendance\AttendanceCorrectionRequest;
+use App\Http\Requests\Attendance\AttendanceCreateRequest;
 
 class AttendanceService implements AttendanceServiceInterface
 {
@@ -372,5 +373,22 @@ class AttendanceService implements AttendanceServiceInterface
             'comment' => $attendanceData->comment,
             'breakings'             => $resBreakings,
         ];
+    }
+
+    /**
+     * 勤怠新規登録を行い、その結果を 整数 もしくは null で返す
+     *
+     * @param AttendanceCreateRequest $request
+     * @return int|null
+     */
+    public function createAttendance(AttendanceCreateRequest $request): int|null
+    {
+        $attendance = $this->attendanceRepository->createAttendanceRecords($request);
+
+        if (!$attendance) {
+            return null;
+        }
+
+        return $attendance->id;
     }
 }
