@@ -187,7 +187,10 @@ class AttendanceRepository implements AttendanceRepositoryInterface
             $endOfMonth = Carbon::parse($date)->endOfMonth();
 
             // ログインユーザーの対象月の勤怠を取得
-            $attendances = Attendance::where('user_id', $userId)
+            $attendances = Attendance::with(['attendanceCorrections' => function ($query) {
+                $query->whereNull('approval_date');
+            }])
+                ->where('user_id', $userId)
                 ->whereBetween('start_date', [$startOfMonth, $endOfMonth])
                 ->get()
                 ->keyBy('start_date');

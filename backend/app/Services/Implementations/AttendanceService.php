@@ -160,13 +160,23 @@ class AttendanceService implements AttendanceServiceInterface
                 $dateStr = $dateTime->toDateString();
                 $attendance = $attendances->get($dateStr);
 
+                // デフォルトは attendance
+                $target = $attendance;
+
+                if ($attendance && $attendance->correction_request_date) {
+                    $correction = $attendance->attendanceCorrections->first();
+                    if ($correction) {
+                        $target = $correction;
+                    }
+                }
+
                 $res[] = [
                     'date' => $dateTime->format('m/d') . '(' . $this->getDayOfWeek($dateTime) . ')',
                     'id' => $attendance?->id,
-                    'start_time' => $attendance?->start_time ? Carbon::parse($attendance->start_time)->format('H:i') : null,
-                    'end_time' => $attendance?->end_time ? Carbon::parse($attendance->end_time)->format('H:i') : null,
-                    'total_breaking_time' => $this->formatSecondsToHoursMinutes($attendance?->total_breaking_time),
-                    'actual_working_time' => $this->formatSecondsToHoursMinutes($attendance?->actual_working_time),
+                    'start_time' => $target?->start_time ? Carbon::parse($target->start_time)->format('H:i') : null,
+                    'end_time' => $target?->end_time ? Carbon::parse($target->end_time)->format('H:i') : null,
+                    'total_breaking_time' => $this->formatSecondsToHoursMinutes($target?->total_breaking_time),
+                    'actual_working_time' => $this->formatSecondsToHoursMinutes($target?->actual_working_time),
                     'year_month' => $dateTime->format('Y-m-d'),
                 ];
             }
