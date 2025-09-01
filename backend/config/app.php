@@ -170,6 +170,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
         App\Providers\AttendanceServiceProvider::class,
+        App\Providers\AdminLoginServiceProvider::class,
     ])->toArray(),
 
     /*

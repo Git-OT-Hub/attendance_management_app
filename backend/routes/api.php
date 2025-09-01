@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\Admin\Auth\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,3 +56,26 @@ Route::middleware(['auth:sanctum'])->group(function() {
         Route::get('/attendance/correction_request_list/waiting', [AttendanceController::class, 'waitingList']);
     });
 });
+
+// 管理者
+Route::prefix('admin')->group(function () {
+    // 管理者ログイン
+    Route::post('/login', [LoginController::class, 'store']);
+
+    // 認証済みかつ、管理者からのリクエストのみ許可
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+        // ログインユーザー情報取得
+        Route::get('/user', function (Request $request) {
+            return $request->user('admin');
+        });
+        // 管理者ログアウト
+        Route::post('/logout', [LoginController::class, 'destroy']);
+
+        // メール認証済みの場合のみ、リクエスト許可
+        Route::middleware(['verified'])->group(function() {
+            
+        });
+    });
+});
+
+
