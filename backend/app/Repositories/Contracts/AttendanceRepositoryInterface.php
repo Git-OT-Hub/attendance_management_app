@@ -3,6 +3,7 @@
 namespace App\Repositories\Contracts;
 
 use Illuminate\Database\Eloquent\Collection;
+use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Breaking;
 use App\Http\Requests\Attendance\WorkRequest;
@@ -93,4 +94,14 @@ interface AttendanceRepositoryInterface
      * @return Attendance|null
      */
     public function createAttendanceRecords(AttendanceCreateRequest $request): Attendance|null;
+
+    /**
+     * ログインユーザー情報、勤怠情報を取得
+     *
+     * @return array{
+     *   user: User,
+     *   attendances: Collection<int, Attendance>
+     * }|null
+     */
+    public function findAttendanceWaitingList(): array|null;
 }

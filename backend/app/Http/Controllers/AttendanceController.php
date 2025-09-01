@@ -205,4 +205,22 @@ class AttendanceController extends Controller
 
         return response()->json($res, Response::HTTP_CREATED);
     }
+
+    /**
+     * 承認待ちの申請一覧結果を JSON形式で返す
+     *
+     * @return JsonResponse
+    */
+    public function waitingList(): JsonResponse
+    {
+        $res = $this->attendanceService->attendanceWaitingList();
+
+        if ($res === null) {
+            return response()->json([
+                'message' => '承認待ち申請一覧の取得に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
+    }
 }

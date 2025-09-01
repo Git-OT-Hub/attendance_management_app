@@ -91,3 +91,11 @@ export type AttendanceShowNameAndDate = {
     user_name: string;
     attendance_start_date: string;
 }
+
+export type WaitingForApprovalListType = {
+    id: number;
+    user_name: string;
+    start_date: string;
+    comment: string;
+    correction_request_date: string;
+}

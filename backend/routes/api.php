@@ -51,5 +51,7 @@ Route::middleware(['auth:sanctum'])->group(function() {
         Route::patch('/attendance/correction', [AttendanceController::class, 'correction']);
         // 勤怠新規作成
         Route::post('/attendance/create', [AttendanceController::class, 'create']);
+        // 承認待ち一覧
+        Route::get('/attendance/correction_request_list/waiting', [AttendanceController::class, 'waitingList']);
     });
 });

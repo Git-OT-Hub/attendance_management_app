@@ -401,4 +401,48 @@ class AttendanceService implements AttendanceServiceInterface
 
         return $attendance->id;
     }
+
+    /**
+     * 承認待ち申請一覧を取得し、その結果を連想配列、空配列、もしくは null で返す
+     *
+     * @return array<int, array{
+     *   id: int,
+     *   user_name: string,
+     *   start_date: string,
+     *   comment: string,
+     *   correction_request_date: string,
+     * }>|array<empty>|null
+     */
+    public function attendanceWaitingList(): array|null
+    {
+        $res = $this->attendanceRepository->findAttendanceWaitingList();
+
+        if (!$res) {
+            return null;
+        }
+
+        $user = $res['user'];
+        $attendances = $res['attendances'];
+
+        if ($attendances->count() === 0) {
+            return [];
+        }
+
+        $resList = [];
+        foreach ($attendances as $attendance) {
+            $correction = $attendance->attendanceCorrections
+                ->whereNull('approval_date')
+                ->first();
+
+            $resList[] = [
+                'id' => $attendance->id,
+                'user_name' => $user->name,
+                'start_date' => $attendance->start_date,
+                'comment' => $correction->comment,
+                'correction_request_date' => $attendance->correction_request_date,
+            ];
+        }
+
+        return $resList;
+    }
 }

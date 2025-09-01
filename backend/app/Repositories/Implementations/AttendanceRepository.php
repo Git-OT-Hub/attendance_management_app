@@ -395,4 +395,33 @@ class AttendanceRepository implements AttendanceRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * ログインユーザー情報、勤怠情報を取得
+     *
+     * @return array{
+     *   user: User,
+     *   attendances: Collection<int, Attendance>
+     * }|null
+     */
+    public function findAttendanceWaitingList(): array|null
+    {
+        try {
+            $user = Auth::user();
+            $attendances = Attendance::with(['attendanceCorrections' => function ($query) {
+                $query->whereNull('approval_date');
+            }])
+                ->where('user_id', $user->id)
+                ->whereNotNull('correction_request_date')
+                ->orderBy('correction_request_date', 'desc')
+                ->get();
+
+            return [
+                'user' => $user,
+                'attendances' => $attendances
+            ];
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
 }

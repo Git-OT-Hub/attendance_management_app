@@ -117,4 +117,17 @@ interface AttendanceServiceInterface
      * @return int|null
      */
     public function createAttendance(AttendanceCreateRequest $request): int|null;
+
+    /**
+     * 承認待ち申請一覧を取得し、その結果を連想配列、空配列、もしくは null で返す
+     *
+     * @return array<int, array{
+     *   id: int,
+     *   user_name: string,
+     *   start_date: string,
+     *   comment: string,
+     *   correction_request_date: string,
+     * }>|array<empty>|null
+     */
+    public function attendanceWaitingList(): array|null;
 }
