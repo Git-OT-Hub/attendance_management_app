@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\Auth\LoginController;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Support\Facades\Auth;
 use App\Actions\Admin\AttemptToAuthenticate;
+use App\Contracts\Admin\RedirectsIfTwoFactorAuthenticatable;
+use App\Actions\Admin\RedirectIfTwoFactorAuthenticatable;
 
 class AdminLoginServiceProvider extends ServiceProvider
 {
@@ -15,8 +17,10 @@ class AdminLoginServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(RedirectsIfTwoFactorAuthenticatable::class, RedirectIfTwoFactorAuthenticatable::class);
+
         $this->app
-            ->when([LoginController::class, AttemptToAuthenticate::class])
+            ->when([LoginController::class, AttemptToAuthenticate::class, RedirectIfTwoFactorAuthenticatable::class])
             ->needs(StatefulGuard::class)
             ->give(function () {
                 return Auth::guard('admin');

@@ -10,7 +10,7 @@ use Laravel\Fortify\Actions\CanonicalizeUsername;
 use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
 use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
 use Laravel\Fortify\Contracts\LoginViewResponse;
-use Laravel\Fortify\Contracts\RedirectsIfTwoFactorAuthenticatable;
+use App\Contracts\Admin\RedirectsIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Illuminate\Http\Request;
