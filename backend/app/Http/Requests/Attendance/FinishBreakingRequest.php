@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Breaking;
+use Carbon\Carbon;
 
 class FinishBreakingRequest extends FormRequest
 {
@@ -52,6 +54,33 @@ class FinishBreakingRequest extends FormRequest
             'state.required' => '勤怠状態は必須です',
             'state.integer' => '勤怠状態は整数である必要があります',
         ];
+    }
+
+    /**
+     * 追加のバリデーション
+     *
+     * @param Validator $validator
+     * @return void
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function ($validator) {
+            $breakingId = $this->input('breaking_id', null);
+            $breakingEndTime = $this->input('end_time', "");
+            $breaking = Breaking::find($breakingId);
+
+            if (!$breaking->start_time || !$breakingEndTime) {
+                return;
+            }
+
+            $breakingStart = Carbon::parse($breaking->start_time);
+            $breakingEnd = Carbon::parse($breakingEndTime);
+
+            // 休憩開始時間と休憩終了時間が同じでないか
+            if ($breakingEnd->lessThanOrEqualTo($breakingStart)) {
+                $validator->errors()->add('end_time', '休憩開始時間 と 休憩終了時間は 1分以上 あけてください');
+            }
+        });
     }
 
     /**

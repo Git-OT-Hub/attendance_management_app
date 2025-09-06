@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Attendance;
+use Carbon\Carbon;
 
 class FinishWorkRequest extends FormRequest
 {
@@ -48,6 +50,47 @@ class FinishWorkRequest extends FormRequest
             'state.required' => '勤怠状態は必須です',
             'state.integer' => '勤怠状態は整数である必要があります',
         ];
+    }
+
+    /**
+     * 追加のバリデーション
+     *
+     * @param Validator $validator
+     * @return void
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function ($validator) {
+            $attendanceId = $this->input('attendance_id', null);
+            $attendanceEndTime = $this->input('end_time', "");
+            $attendance = Attendance::find($attendanceId);
+            $attendanceStartTime = $attendance->start_time;
+            $latestBreaking = $attendance->breakings()->orderByDesc('id')->first();
+            $latestBreakingEndTime = $latestBreaking?->end_time;
+
+            if (!$attendanceEndTime || !$attendanceStartTime) {
+                return;
+            }
+
+            $attendanceStart = Carbon::parse($attendanceStartTime);
+            $attendanceEnd = Carbon::parse($attendanceEndTime);
+
+            // 出勤時間と退勤時間が同じでないか
+            if ($attendanceEnd->lessThanOrEqualTo($attendanceStart)) {
+                $validator->errors()->add('end_time', '出勤時間 と 退勤時間は 1分以上 あけてください');
+            }
+
+            if (!$latestBreakingEndTime) {
+                return;
+            }
+
+            $latestBreakingEnd = Carbon::parse($latestBreakingEndTime);
+
+            // 退勤時間と休憩終了時間が同じでないか
+            if ($attendanceEnd->lessThanOrEqualTo($latestBreakingEnd)) {
+                $validator->errors()->add('end_time', '休憩終了時間 と 退勤時間は 1分以上 あけてください');
+            }
+        });
     }
 
     /**

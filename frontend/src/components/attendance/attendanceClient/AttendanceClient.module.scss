@@ -16,3 +16,14 @@
     display: flex;
     justify-content: space-evenly;
 }
+
+.errors {
+    color: #fb5555;
+    text-align: start;
+    font-weight: bold;
+    margin-top: 40px;
+
+    ul {
+        margin: 0;
+    }
+}

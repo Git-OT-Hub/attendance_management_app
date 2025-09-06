@@ -4,13 +4,14 @@ import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
 import { formatDateTime } from "@/lib/dateTime/date";
 import type { AttendanceType, WorkingStateType, BreakingType, FinishBreakingType, FinishWorkType } from "@/types/attendance/attendance";
-import { HTTP_OK ,HTTP_CREATED } from "@/constants/httpStatus";
+import { HTTP_OK ,HTTP_CREATED, HTTP_UNPROCESSABLE_ENTITY } from "@/constants/httpStatus";
 import { flashStore } from "@/store/zustand/flashStore";
 import { userStore } from "@/store/zustand/userStore";
 import AttendanceState from "@/components/attendance/attendanceState/AttendanceState";
 import AttendanceButton from "@/components/attendance/attendanceButton/AttendanceButton";
 import styles from "@/components/attendance/attendanceClient/AttendanceClient.module.scss";
 import { WORK, BREAK, FINISHED } from "@/constants/attendanceState";
+import type { ValidationErrorsType } from "@/types/errors/errors";
 
 const AttendanceClient = ({
 	children,
@@ -20,6 +21,9 @@ const AttendanceClient = ({
     const [workingState, setWorkingState] = useState<WorkingStateType>("勤務外");
     const { createFlash } = flashStore();
     const { user } = userStore();
+    const [errors, setErrors] = useState<ValidationErrorsType>({
+        errors: {}
+    });
 
     useLayoutEffect(() => {
         let startTime = "";
@@ -107,6 +111,8 @@ const AttendanceClient = ({
 
             apiClient.patch('/api/attendance/finish_work', data)
                 .then((res: AxiosResponse<FinishWorkType>) => {
+                    setErrors({errors: {}});
+
                     if (res.status !== HTTP_OK) {
                         console.error('予期しないエラー: ', res.status);
                         return;
@@ -128,6 +134,13 @@ const AttendanceClient = ({
                         type: "error",
                         message: "退勤処理に失敗しました"
                     });
+
+                    // バリデーションエラー表示
+                    if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {
+                        setErrors({errors: {...e.response.data.errors}});
+                        return;
+                    }
+
                     console.error('予期しないエラー: ', e);
                 });
         }
@@ -145,6 +158,8 @@ const AttendanceClient = ({
 
             apiClient.post('/api/attendance/break', data)
                 .then((res: AxiosResponse<BreakingType>) => {
+                    setErrors({errors: {}});
+
                     if (res.status !== HTTP_CREATED) {
                         console.error('予期しないエラー: ', res.status);
                         return;
@@ -168,6 +183,13 @@ const AttendanceClient = ({
                         type: "error",
                         message: "休憩開始処理に失敗しました"
                     });
+
+                    // バリデーションエラー表示
+                    if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {
+                        setErrors({errors: {...e.response.data.errors}});
+                        return;
+                    }
+
                     console.error('予期しないエラー: ', e);
                 });
         }
@@ -187,6 +209,8 @@ const AttendanceClient = ({
 
             apiClient.patch('/api/attendance/finish_break', data)
                 .then((res: AxiosResponse<FinishBreakingType>) => {
+                    setErrors({errors: {}});
+
                     if (res.status !== HTTP_OK) {
                         console.error('予期しないエラー: ', res.status);
                         return;
@@ -206,6 +230,13 @@ const AttendanceClient = ({
                         type: "error",
                         message: "休憩終了処理に失敗しました"
                     });
+
+                    // バリデーションエラー表示
+                    if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {
+                        setErrors({errors: {...e.response.data.errors}});
+                        return;
+                    }
+
                     console.error('予期しないエラー: ', e);
                 });
         };
@@ -219,6 +250,19 @@ const AttendanceClient = ({
                 />
             </div>
             {children}
+            {Object.keys(errors.errors).length !== 0 && (
+                <div className={styles.errors}>
+                    <ul>
+                        {Object.entries(errors.errors).map(([field, messages]) =>
+                            messages.map((msg, index) => (
+                                <li key={`${field}-${index}`}>
+                                    {msg}
+                                </li>
+                            ))
+                        )}
+                    </ul>
+                </div>
+            )}
             <div className={styles.btnArea}>
                 {workingState === "勤務外" && (
                     <AttendanceButton
