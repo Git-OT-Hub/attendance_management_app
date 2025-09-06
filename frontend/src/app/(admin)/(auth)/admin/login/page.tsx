@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AdminLoginForm from "@/components/admin/auth/login/AdminLoginForm";
+import GuestGuard from "@/components/admin/auth/routeProtection/GuestGuard";
 
 export const metadata: Metadata = {
     title: "管理者ログイン",
@@ -9,10 +10,10 @@ export const metadata: Metadata = {
 const AdminLoginPage = () => {
     return (
         <>
-
+            <GuestGuard>
                 <h1>管理者ログイン</h1>
                 <AdminLoginForm />
-
+            </GuestGuard>
         </>
     )
 }

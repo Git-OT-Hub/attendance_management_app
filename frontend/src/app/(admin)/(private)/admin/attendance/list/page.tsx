@@ -4,15 +4,6 @@ import { apiClient } from "@/lib/axios/axios";
 import { useEffect } from "react";
 
 const AdminAttendanceListPage = () => {
-    useEffect(() => {
-        apiClient.get('/api/admin/user')
-            .then((res) => {
-                console.log(res);
-            })
-            .catch(e => {
-                console.log(e);
-            });
-    }, []);
 
     return (
         <div>AdminAttendanceListPage</div>

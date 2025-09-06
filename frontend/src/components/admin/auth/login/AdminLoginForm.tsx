@@ -38,8 +38,6 @@ const AdminLoginForm = () => {
                         return;
                     }
 
-                    console.log(res);
-
                     createFlash({
                         type: "success",
                         message: "ログインしました"
