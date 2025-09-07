@@ -76,6 +76,8 @@ Route::prefix('admin')->group(function () {
         Route::middleware(['verified'])->group(function() {
             // 勤怠一覧取得
             Route::get('/attendance/list', [AdminAttendanceController::class, 'todayList']);
+            // 勤怠新規作成
+            Route::post('/attendance/create', [AdminAttendanceController::class, 'create']);
         });
     });
 });

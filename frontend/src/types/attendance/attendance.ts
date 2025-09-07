@@ -107,4 +107,12 @@ export type AdminAttendanceListType = {
     total_breaking_time: string | null;
     actual_working_time: string | null;
     user_name: string;
+    user_id: number;
+}
+
+export type AdminAttendanceShowUseState = {
+    user_id: number;
+    attendance_start_date: string;
+    attendance_start_time: string;
+    attendance_end_time: string;
 }

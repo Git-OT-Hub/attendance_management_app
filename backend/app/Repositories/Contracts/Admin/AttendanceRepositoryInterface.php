@@ -4,6 +4,8 @@ namespace App\Repositories\Contracts\Admin;
 
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\User;
+use App\Models\Attendance;
+use App\Http\Requests\Admin\Attendance\AttendanceCreateRequest;
 
 interface AttendanceRepositoryInterface
 {
@@ -14,4 +16,12 @@ interface AttendanceRepositoryInterface
      * @return Collection<int, User>|null
      */
     public function findAttendanceTodayList(string $date): Collection|null;
+
+    /**
+     * 勤怠新規登録を行い、その結果を Attendanceインスタンス もしくは null で返す
+     *
+     * @param AttendanceCreateRequest $request
+     * @return Attendance|null
+     */
+    public function createAttendanceRecords(AttendanceCreateRequest $request): Attendance|null;
 }

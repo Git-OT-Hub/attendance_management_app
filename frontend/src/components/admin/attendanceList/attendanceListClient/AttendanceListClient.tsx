@@ -104,7 +104,11 @@ const AttendanceListClient = () => {
                                     href={record.id ? `/admin/attendance/${record.id}`
                                     : {
                                         pathname: "/admin/attendance/create",
-                                        query: { yearMonth: date },
+                                        query: {
+                                            yearMonth: date,
+                                            userId: record.user_id,
+                                            userName: record.user_name,
+                                        },
                                     }}
                                 >詳細</Link>
                             </td>

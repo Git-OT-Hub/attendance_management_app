@@ -5,6 +5,7 @@ namespace App\Services\Implementations\Admin;
 use Carbon\Carbon;
 use App\Services\Contracts\Admin\AttendanceServiceInterface;
 use App\Repositories\Contracts\Admin\AttendanceRepositoryInterface;
+use App\Http\Requests\Admin\Attendance\AttendanceCreateRequest;
 
 class AttendanceService implements AttendanceServiceInterface
 {
@@ -25,7 +26,8 @@ class AttendanceService implements AttendanceServiceInterface
      *   end_time: string|null,
      *   total_breaking_time: int|null,
      *   actual_working_time: int|null,
-     *   user_name: string
+     *   user_name: string,
+     *   user_id: int,
      * }>|null
      */
     public function attendanceTodayList(string $date): array|null
@@ -67,6 +69,7 @@ class AttendanceService implements AttendanceServiceInterface
                 'total_breaking_time' => $this->formatSecondsToHoursMinutes($target?->total_breaking_time),
                 'actual_working_time' => $this->formatSecondsToHoursMinutes($target?->actual_working_time),
                 'user_name' => $user->name,
+                'user_id' => $user->id,
             ];
         }
 
@@ -89,5 +92,22 @@ class AttendanceService implements AttendanceServiceInterface
         $minutes = intdiv($seconds % 3600, 60);
 
         return sprintf('%d:%02d', $hours, $minutes);
+    }
+
+    /**
+     * 勤怠新規登録を行い、その結果を 整数 もしくは null で返す
+     *
+     * @param AttendanceCreateRequest $request
+     * @return int|null
+     */
+    public function createAttendance(AttendanceCreateRequest $request): int|null
+    {
+        $attendance = $this->attendanceRepository->createAttendanceRecords($request);
+
+        if (!$attendance) {
+            return null;
+        }
+
+        return $attendance->id;
     }
 }
