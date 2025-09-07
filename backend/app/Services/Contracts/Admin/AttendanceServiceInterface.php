@@ -29,4 +29,25 @@ interface AttendanceServiceInterface
      * @return int|null
      */
     public function createAttendance(AttendanceCreateRequest $request): int|null;
+
+    /**
+     * 一般ユーザーの勤怠における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   user_name: string,
+     *   attendance_id: int,
+     *   attendance_start_date: string,
+     *   attendance_start_time: string,
+     *   attendance_end_time: string|null,
+     *   attendance_correction_request_date: string|null,
+     *   comment?: string,
+     *   breakings: array<string, array{
+     *     breaking_id: int,
+     *     breaking_start_time: string,
+     *     breaking_end_time: string|null,
+     *   }>|null
+     * }|null
+     */
+    public function attendanceShow(string $id): array|null;
 }

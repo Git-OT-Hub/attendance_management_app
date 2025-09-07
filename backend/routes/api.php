@@ -78,6 +78,10 @@ Route::prefix('admin')->group(function () {
             Route::get('/attendance/list', [AdminAttendanceController::class, 'todayList']);
             // 勤怠新規作成
             Route::post('/attendance/create', [AdminAttendanceController::class, 'create']);
+            // 勤怠詳細
+            Route::get('/attendance/{id}', [AdminAttendanceController::class, 'show']);
+            // 勤怠修正
+            Route::patch('/attendance/correction', [AdminAttendanceController::class, 'correction']);
         });
     });
 });

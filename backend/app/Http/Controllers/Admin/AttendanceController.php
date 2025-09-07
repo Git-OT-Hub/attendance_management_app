@@ -57,4 +57,23 @@ class AttendanceController extends Controller
 
         return response()->json($res, Response::HTTP_CREATED);
     }
+
+    /**
+     * 一般ユーザーの勤怠における詳細情報を取得し、その結果を JSON形式で返す
+     *
+     * @param  string $id
+     * @return JsonResponse
+    */
+    public function show(string $id): JsonResponse
+    {
+        $res = $this->attendanceService->attendanceShow($id);
+
+        if (!$res) {
+            return response()->json([
+                'message' => '勤怠詳細の取得に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
+    }
 }

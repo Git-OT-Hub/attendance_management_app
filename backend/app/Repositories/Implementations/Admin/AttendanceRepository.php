@@ -9,6 +9,8 @@ use App\Repositories\Contracts\Admin\AttendanceRepositoryInterface;
 use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Breaking;
+use App\Models\AttendanceCorrection;
+use App\Models\BreakingCorrection;
 use App\Http\Requests\Admin\Attendance\AttendanceCreateRequest;
 use App\Enums\AttendanceState;
 
@@ -91,6 +93,46 @@ class AttendanceRepository implements AttendanceRepositoryInterface
             });
 
             return $res;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * 一般ユーザーの勤怠における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   user: User,
+     *   attendance: Attendance|AttendanceCorrection,
+     *   breakings: Collection<int, Breaking|BreakingCorrection>
+     * }|null
+     */
+    public function findAttendanceShow(string $id): array|null
+    {
+        try {
+            $attendance = Attendance::find($id);
+            $user = User::find($attendance->user_id);
+
+            if ($attendance->correction_request_date) {
+                $attendanceCorrections = $attendance->attendanceCorrections()->where('approval_date', null)->get();
+                if (count($attendanceCorrections) !== 1) {
+                    return null;
+                }
+                $attendanceCorrection = $attendanceCorrections->first();
+
+                return [
+                    'user'       => $user,
+                    'attendance' => $attendanceCorrection,
+                    'breakings'  => $attendanceCorrection->breakingCorrections()->orderBy('id', 'asc')->get(),
+                ];
+            } else {
+                return [
+                    'user'       => $user,
+                    'attendance' => $attendance,
+                    'breakings'  => $attendance->breakings()->orderBy('id', 'asc')->get(),
+                ];
+            }
         } catch (\Throwable $e) {
             return null;
         }

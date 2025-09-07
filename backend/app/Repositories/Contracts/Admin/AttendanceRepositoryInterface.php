@@ -5,6 +5,9 @@ namespace App\Repositories\Contracts\Admin;
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\User;
 use App\Models\Attendance;
+use App\Models\Breaking;
+use App\Models\AttendanceCorrection;
+use App\Models\BreakingCorrection;
 use App\Http\Requests\Admin\Attendance\AttendanceCreateRequest;
 
 interface AttendanceRepositoryInterface
@@ -24,4 +27,16 @@ interface AttendanceRepositoryInterface
      * @return Attendance|null
      */
     public function createAttendanceRecords(AttendanceCreateRequest $request): Attendance|null;
+
+    /**
+     * 一般ユーザーの勤怠における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   user: User,
+     *   attendance: Attendance|AttendanceCorrection,
+     *   breakings: Collection<int, Breaking|BreakingCorrection>
+     * }|null
+     */
+    public function findAttendanceShow(string $id): array|null;
 }
