@@ -68,7 +68,7 @@ const AttendanceCreateClient = () => {
             correction_request_date: formatDateTime()
         };
 
-        if (confirm("この内容で修正申請しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
+        if (confirm("この内容で修正しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
             apiClient.post('/api/admin/attendance/create', data)
                 .then((res: AxiosResponse<number>) => {
                     setErrors({errors: {}});
@@ -81,7 +81,7 @@ const AttendanceCreateClient = () => {
                         type: "success",
                         message: "修正しました"
                     });
-                    // router.push(`/admin/attendance/${res.data}`);
+                    router.push(`/admin/attendance/${res.data}`);
                 })
                 .catch((e) => {
                     // バリデーションエラー表示
