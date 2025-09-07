@@ -3,6 +3,7 @@
 namespace App\Services\Contracts\Admin;
 
 use App\Http\Requests\Admin\Attendance\AttendanceCreateRequest;
+use App\Http\Requests\Admin\Attendance\AttendanceCorrectionRequest;
 
 interface AttendanceServiceInterface
 {
@@ -50,4 +51,24 @@ interface AttendanceServiceInterface
      * }|null
      */
     public function attendanceShow(string $id): array|null;
+
+    /**
+     * 勤怠修正処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param AttendanceCorrectionRequest $request
+     * @return array{
+     *   user_name: string,
+     *   attendance_id: int,
+     *   attendance_start_date: string,
+     *   attendance_start_time: string,
+     *   attendance_end_time: string,
+     *   attendance_correction_request_date: string,
+     *   breakings: array<string, array{
+     *     breaking_id: int,
+     *     breaking_start_time: string,
+     *     breaking_end_time: string,
+     *   }>|null
+     * }|null
+     */
+    public function correctAttendance(AttendanceCorrectionRequest $request): array|null;
 }

@@ -9,6 +9,7 @@ use App\Models\Breaking;
 use App\Models\AttendanceCorrection;
 use App\Models\BreakingCorrection;
 use App\Http\Requests\Admin\Attendance\AttendanceCreateRequest;
+use App\Http\Requests\Admin\Attendance\AttendanceCorrectionRequest;
 
 interface AttendanceRepositoryInterface
 {
@@ -39,4 +40,16 @@ interface AttendanceRepositoryInterface
      * }|null
      */
     public function findAttendanceShow(string $id): array|null;
+
+    /**
+     * 勤怠修正処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param AttendanceCorrectionRequest $request
+     * @return array{
+     *   user: User,
+     *   attendance: Attendance,
+     *   breakings: Collection<int, Breaking>
+     * }|null
+     */
+    public function updateAttendanceCorrection(AttendanceCorrectionRequest $request): array|null;
 }

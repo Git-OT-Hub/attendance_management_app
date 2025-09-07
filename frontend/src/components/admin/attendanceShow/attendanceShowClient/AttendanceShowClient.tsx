@@ -97,7 +97,9 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
             correction_request_date: formatDateTime()
         };
 
-        if (confirm("この内容で修正申請しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
+        console.log(data);
+
+        if (confirm("この内容で修正しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
             apiClient.patch('/api/admin/attendance/correction', data)
                 .then((res: AxiosResponse<AttendanceShowType>) => {
                     setErrors({errors: {}});
@@ -120,6 +122,8 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                     setBreakings(res.data.breakings);
                     if (res.data.comment) {
                         setComment(res.data.comment);
+                    } else {
+                        setComment('');
                     }
                     setLoading(false);
 

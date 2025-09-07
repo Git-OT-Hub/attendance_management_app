@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Http\Controllers\Controller;
 use App\Services\Contracts\Admin\AttendanceServiceInterface;
 use App\Http\Requests\Admin\Attendance\AttendanceCreateRequest;
+use App\Http\Requests\Admin\Attendance\AttendanceCorrectionRequest;
 
 class AttendanceController extends Controller
 {
@@ -71,6 +72,25 @@ class AttendanceController extends Controller
         if (!$res) {
             return response()->json([
                 'message' => '勤怠詳細の取得に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
+    }
+
+    /**
+     * 勤怠修正処理を行い、その結果を JSON形式で返す
+     *
+     * @param AttendanceCorrectionRequest $request
+     * @return JsonResponse
+    */
+    public function correction(AttendanceCorrectionRequest $request): JsonResponse
+    {
+        $res = $this->attendanceService->correctAttendance($request);
+
+        if (!$res) {
+            return response()->json([
+                'message' => '勤怠修正処理に失敗しました'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
