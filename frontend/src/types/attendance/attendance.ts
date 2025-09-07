@@ -99,3 +99,12 @@ export type WaitingForApprovalListType = {
     comment: string;
     correction_request_date: string;
 }
+
+export type AdminAttendanceListType = {
+    id: number | null;
+    start_time: string | null;
+    end_time: string | null;
+    total_breaking_time: string | null;
+    actual_working_time: string | null;
+    user_name: string;
+}

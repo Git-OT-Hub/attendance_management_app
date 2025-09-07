@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,7 +74,8 @@ Route::prefix('admin')->group(function () {
 
         // メール認証済みの場合のみ、リクエスト許可
         Route::middleware(['verified'])->group(function() {
-            
+            // 勤怠一覧取得
+            Route::get('/attendance/list', [AdminAttendanceController::class, 'todayList']);
         });
     });
 });

@@ -15,7 +15,7 @@ class AttendancesTableSeeder extends Seeder
      * Run the database seeds.
      *
      * Carbon::create のそれぞれの引数に、勤怠データを作成したい月の開始日と終了日をそれぞれ入力して、seederコマンドを実行する
-     * 月をまたいでの入力はできません！！
+     * 月をまたいでの入力も可能です
      * 月の途中まで勤怠データを作成する場合は下記のように記述(2025/8/17までの勤怠データを作成する例)
      * $startDate = Carbon::create(2025, 8, 1);
      * $endDate   = Carbon::create(2025, 8, 17);
@@ -25,10 +25,12 @@ class AttendancesTableSeeder extends Seeder
     public function run(): void
     {
         $user = User::first() ?? User::factory()->create();
+        // $user = User::find(5);
+
         // 開始日
-        $startDate = Carbon::create(2025, 7, 1);
+        $startDate = Carbon::create(2025, 9, 1);
         // 終了日
-        $endDate   = Carbon::create(2025, 7, 31);
+        $endDate   = Carbon::create(2025, 9, 6);
 
         // 1日ごとにループ
         for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
