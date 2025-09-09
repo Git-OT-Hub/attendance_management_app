@@ -48,3 +48,9 @@
     text-decoration: none;
     color: #000;
 }
+
+.comment {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

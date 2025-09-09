@@ -292,11 +292,13 @@ class AttendanceRepository implements AttendanceRepositoryInterface
                         return Carbon::parse($breaking['breaking_start_time']);
                     });
                 foreach ($sortedBreakings as $label => $breaking) {
-                    BreakingCorrection::create([
-                        'attendance_correction_id' => $attendanceCorrection->id,
-                        'start_time' => Carbon::parse($breaking['breaking_start_time'])->format('Y-m-d H:i:s'),
-                        'end_time' => Carbon::parse($breaking['breaking_end_time'])->format('Y-m-d H:i:s'),
-                    ]);
+                    if (!empty($breaking['breaking_start_time']) && !empty($breaking['breaking_end_time'])) {
+                        BreakingCorrection::create([
+                            'attendance_correction_id' => $attendanceCorrection->id,
+                            'start_time' => Carbon::parse($breaking['breaking_start_time'])->format('Y-m-d H:i:s'),
+                            'end_time' => Carbon::parse($breaking['breaking_end_time'])->format('Y-m-d H:i:s'),
+                        ]);
+                    }
                 }
 
                 // 勤怠修正履歴に休憩時間、実勤務時間を登録
@@ -353,11 +355,13 @@ class AttendanceRepository implements AttendanceRepositoryInterface
                 ]);
 
                 // 休憩データ作成
-                Breaking::create([
-                    'attendance_id' => $attendance->id,
-                    'start_time' => Carbon::parse($request->breaking['breaking_start_time'])->format('Y-m-d H:i:s'),
-                    'end_time' => Carbon::parse($request->breaking['breaking_end_time'])->format('Y-m-d H:i:s'),
-                ]);
+                if (!empty($request->breaking['breaking_start_time']) && !empty($request->breaking['breaking_end_time'])) {
+                    Breaking::create([
+                        'attendance_id' => $attendance->id,
+                        'start_time' => Carbon::parse($request->breaking['breaking_start_time'])->format('Y-m-d H:i:s'),
+                        'end_time' => Carbon::parse($request->breaking['breaking_end_time'])->format('Y-m-d H:i:s'),
+                    ]);
+                }
 
                 // 勤怠データの一部カラム更新
                 $totalBreakingTime = $attendance->totalBreakingTime();
@@ -381,11 +385,13 @@ class AttendanceRepository implements AttendanceRepositoryInterface
                 ]);
 
                 // 休憩修正履歴データの作成
-                BreakingCorrection::create([
-                    'attendance_correction_id' => $attendanceCorrection->id,
-                    'start_time' => Carbon::parse($request->breaking['breaking_start_time'])->format('Y-m-d H:i:s'),
-                    'end_time' => Carbon::parse($request->breaking['breaking_end_time'])->format('Y-m-d H:i:s'),
-                ]);
+                if (!empty($request->breaking['breaking_start_time']) && !empty($request->breaking['breaking_end_time'])) {
+                    BreakingCorrection::create([
+                        'attendance_correction_id' => $attendanceCorrection->id,
+                        'start_time' => Carbon::parse($request->breaking['breaking_start_time'])->format('Y-m-d H:i:s'),
+                        'end_time' => Carbon::parse($request->breaking['breaking_end_time'])->format('Y-m-d H:i:s'),
+                    ]);
+                }
 
                 return $attendance;
             });

@@ -11,6 +11,10 @@
 }
 
 .tableBody {
+    tr {
+        height: 80px;
+    }
+
     tr + tr {
         border-top: 2px solid #e1e1e1;
     }

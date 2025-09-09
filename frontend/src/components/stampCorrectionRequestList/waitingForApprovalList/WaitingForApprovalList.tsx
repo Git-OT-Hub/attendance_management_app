@@ -58,7 +58,9 @@ const WaitingForApprovalList = () => {
                                     format: "YYYY/MM/DD"
                                 })}
                             </td>
-                            <td>{record.comment}</td>
+                            <td
+                                className={styles.comment}
+                            >{record.comment}</td>
                             <td>
                                 {formatWithDayjs({
                                     day: record.correction_request_date,
