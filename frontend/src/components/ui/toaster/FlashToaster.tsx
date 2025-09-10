@@ -11,7 +11,7 @@ const FlashToaster = () => {
 
     return (
         <div
-            key={`${flash.type}-${flash.message}`}
+            key={flash.id}
             className={`${styles.toaster} ${flash.type === 'success' ? styles.success : ''} ${flash.type === 'error' ? styles.error : ''}`}
         >
             <p>{flash.message}</p>

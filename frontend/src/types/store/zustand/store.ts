@@ -1,4 +1,5 @@
 export type FlashValueType = {
+    id?: string;
     type: "success" | "error" | "";
     message: string;
 };

@@ -87,6 +87,11 @@ class AttendanceRepository implements AttendanceRepositoryInterface
         try {
             $res = DB::transaction(function () use($request) {
                 $attendance = Attendance::find($request->attendance_id);
+                $finishedState = AttendanceState::FINISHED;
+
+                if ($attendance->state === $finishedState->value) {
+                    return null;
+                }
 
                 // 勤怠状態を更新
                 $attendance->update([
@@ -122,6 +127,11 @@ class AttendanceRepository implements AttendanceRepositoryInterface
         try {
             $res = DB::transaction(function () use($request) {
                 $attendance = Attendance::find($request->attendance_id);
+                $finishedState = AttendanceState::FINISHED;
+
+                if ($attendance->state === $finishedState->value) {
+                    return null;
+                }
 
                 // 勤怠状態を更新
                 $attendance->update([
@@ -154,6 +164,11 @@ class AttendanceRepository implements AttendanceRepositoryInterface
         try {
             $workEndTime = $request->end_time;
             $attendance = Attendance::find($request->attendance_id);
+            $finishedState = AttendanceState::FINISHED;
+
+            if ($attendance->state === $finishedState->value) {
+                return null;
+            }
 
             // 休憩時間の合計を取得
             $totalBreakingTime = $attendance->totalBreakingTime();

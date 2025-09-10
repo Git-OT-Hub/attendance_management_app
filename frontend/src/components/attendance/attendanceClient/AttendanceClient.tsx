@@ -24,8 +24,10 @@ const AttendanceClient = ({
     const [errors, setErrors] = useState<ValidationErrorsType>({
         errors: {}
     });
+    const [reload, setReload] = useState<string>("");
 
     useLayoutEffect(() => {
+        setErrors({errors: {}});
         let startTime = "";
         const savedDateTime = localStorage.getItem(`dateTime_${user.id}`);
 
@@ -56,7 +58,7 @@ const AttendanceClient = ({
                 });
                 console.error('予期しないエラー: ', e);
             });
-    }, []);
+    }, [reload]);
 
     const startWorking = () => {
         if (confirm("出勤しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
@@ -90,9 +92,11 @@ const AttendanceClient = ({
                     message: "出勤しました"
                 });
             }).catch((e) => {
+                setReload("startWorking");
+
                 createFlash({
                     type: "error",
-                    message: "出勤の処理に失敗しました"
+                    message: "出勤の処理に失敗しました。\nまたは、管理者側で勤怠情報が操作された可能性があります。"
                 });
                 console.error('予期しないエラー: ', e);
             });
@@ -130,17 +134,17 @@ const AttendanceClient = ({
                         message: "退勤しました"
                     });
                 }).catch((e) => {
-                    createFlash({
-                        type: "error",
-                        message: "退勤処理に失敗しました"
-                    });
-
                     // バリデーションエラー表示
                     if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {
                         setErrors({errors: {...e.response.data.errors}});
                         return;
                     }
 
+                    setReload("finishWork");
+                    createFlash({
+                        type: "error",
+                        message: "退勤処理に失敗しました。\nまたは、管理者側で勤怠情報が操作された可能性があります。"
+                    });
                     console.error('予期しないエラー: ', e);
                 });
         }
@@ -179,17 +183,17 @@ const AttendanceClient = ({
                         message: "休憩を開始しました"
                     });
                 }).catch((e) => {
-                    createFlash({
-                        type: "error",
-                        message: "休憩開始処理に失敗しました"
-                    });
-
                     // バリデーションエラー表示
                     if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {
                         setErrors({errors: {...e.response.data.errors}});
                         return;
                     }
 
+                    setReload("takeBreak");
+                    createFlash({
+                        type: "error",
+                        message: "休憩開始処理に失敗しました。\nまたは、管理者側で勤怠情報が操作された可能性があります。"
+                    });
                     console.error('予期しないエラー: ', e);
                 });
         }
@@ -226,17 +230,17 @@ const AttendanceClient = ({
                         message: "休憩を終了しました"
                     });
                 }).catch((e) => {
-                    createFlash({
-                        type: "error",
-                        message: "休憩終了処理に失敗しました"
-                    });
-
                     // バリデーションエラー表示
                     if (e.response.status === HTTP_UNPROCESSABLE_ENTITY && e.response.data.errors) {
                         setErrors({errors: {...e.response.data.errors}});
                         return;
                     }
 
+                    setReload("finishBreak");
+                    createFlash({
+                        type: "error",
+                        message: "休憩終了処理に失敗しました。\nまたは、管理者側で勤怠情報が操作された可能性があります。"
+                    });
                     console.error('予期しないエラー: ', e);
                 });
         };
