@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Implementations\Admin;
 
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -255,6 +256,73 @@ class AttendanceRepository implements AttendanceRepositoryInterface
                 return [
                     'user'       => $user,
                     'attendance' => $attendance->fresh(),
+                    'breakings'  => $attendance->breakings()->orderBy('id', 'asc')->get(),
+                ];
+            });
+
+            return $res;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * 勤怠修正申請の承認処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param Request $request
+     * @return array{
+     *   user: User,
+     *   attendance: Attendance,
+     *   breakings: Collection<int, Breaking>
+     * }|null
+     */
+    public function updateApproveAttendance(Request $request): array|null
+    {
+        try {
+            $res = DB::transaction(function () use($request) {
+                $attendanceCorrectionId = $request->attendance_correction_id;
+                $attendanceCorrection = AttendanceCorrection::find($attendanceCorrectionId);
+                $breakingCorrections = $attendanceCorrection->breakingCorrections()->orderBy('id', 'asc')->get();
+                $attendance = Attendance::find($attendanceCorrection->attendance_id);
+                $user = User::find($attendance->user_id);
+                $finishedState = AttendanceState::FINISHED;
+
+                if ($attendanceCorrection->approval_date) {
+                    return null;
+                }
+
+                // 勤怠テーブルの修正
+                $attendance->update([
+                    'start_time' => $attendanceCorrection->start_time,
+                    'end_time' => $attendanceCorrection->end_time,
+                    'total_breaking_time' => $attendanceCorrection->total_breaking_time,
+                    'actual_working_time' => $attendanceCorrection->actual_working_time,
+                    'correction_request_date' => null,
+                    'is_approved_history' => true,
+                    'state' => $finishedState->value,
+                ]);
+
+                // 休憩テーブルの該当データを全て削除
+                $attendance->breakings()->delete();
+                // 休憩テーブルに更新後の休憩データを追加
+                foreach ($breakingCorrections as $breakingCorrection) {
+                    Breaking::create([
+                        'attendance_id' => $attendance->id,
+                        'start_time' => $breakingCorrection->start_time,
+                        'end_time' => $breakingCorrection->end_time,
+                    ]);
+                }
+
+                // 勤怠修正テーブルの更新
+                $attendanceCorrection->update([
+                    'approval_date' => Carbon::parse($request->approval_date)->format('Y-m-d H:i:s'),
+                ]);
+
+                $attendance = $attendance->fresh();
+
+                return [
+                    'user'       => $user,
+                    'attendance' => $attendance,
                     'breakings'  => $attendance->breakings()->orderBy('id', 'asc')->get(),
                 ];
             });

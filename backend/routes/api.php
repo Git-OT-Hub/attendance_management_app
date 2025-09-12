@@ -82,6 +82,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/attendance/{id}', [AdminAttendanceController::class, 'show']);
             // 勤怠修正
             Route::patch('/attendance/correction', [AdminAttendanceController::class, 'correction']);
+            // 承認
+            Route::patch('/attendance/approve', [AdminAttendanceController::class, 'approve']);
         });
     });
 });

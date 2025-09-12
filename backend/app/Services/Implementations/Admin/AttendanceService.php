@@ -2,6 +2,7 @@
 
 namespace App\Services\Implementations\Admin;
 
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Services\Contracts\Admin\AttendanceServiceInterface;
 use App\Repositories\Contracts\Admin\AttendanceRepositoryInterface;
@@ -230,6 +231,73 @@ class AttendanceService implements AttendanceServiceInterface
     public function correctAttendance(AttendanceCorrectionRequest $request): array|null
     {
         $res = $this->attendanceRepository->updateAttendanceCorrection($request);
+
+        if (!$res) {
+            return null;
+        }
+
+        $attendanceData = $res['attendance'];
+        $breakings = $res['breakings'];
+        $user = $res['user'];
+        $resBreakings = [];
+
+        // 休憩データの加工
+        foreach ($breakings as $idx => $breaking) {
+            $key = $idx === 0 ? '休憩' : '休憩' . ($idx + 1);
+
+            $resBreakings[$key] = [
+                'breaking_id'         => $breaking->id,
+                'breaking_start_time' => $breaking->start_time
+                    ? $breaking->start_time
+                    : null,
+                'breaking_end_time'   => $breaking->end_time
+                    ? $breaking->end_time
+                    : null,
+            ];
+        }
+
+        // 休憩データの数 +1 の空枠を追加
+        $nextKey = count($breakings) === 0 ? '休憩' : '休憩' . (count($breakings) + 1);
+        $resBreakings[$nextKey] = [];
+
+        return [
+            'user_name'             => $user->name,
+            'attendance_id'         => $attendanceData->id,
+            'attendance_start_date' => $attendanceData->start_date,
+            'attendance_start_time' => $attendanceData->start_time
+                ? $attendanceData->start_time
+                : null,
+            'attendance_end_time'   => $attendanceData->end_time
+                ? $attendanceData->end_time
+                : null,
+            'attendance_correction_request_date' => $attendanceData->correction_request_date
+                ? $attendanceData->correction_request_date
+                : null,
+            'breakings'             => $resBreakings,
+        ];
+    }
+
+    /**
+     * 勤怠修正申請の承認処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param Request $request
+     * @return array{
+     *   user_name: string,
+     *   attendance_id: int,
+     *   attendance_start_date: string,
+     *   attendance_start_time: string,
+     *   attendance_end_time: string,
+     *   attendance_correction_request_date: string,
+     *   breakings: array<string, array{
+     *     breaking_id: int,
+     *     breaking_start_time: string,
+     *     breaking_end_time: string,
+     *   }>|null
+     * }|null
+     */
+    public function approveAttendance(Request $request): array|null
+    {
+        $res = $this->attendanceRepository->updateApproveAttendance($request);
 
         if (!$res) {
             return null;

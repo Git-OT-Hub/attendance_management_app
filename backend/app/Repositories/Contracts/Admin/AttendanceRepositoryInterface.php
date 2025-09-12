@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Contracts\Admin;
 
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\User;
 use App\Models\Attendance;
@@ -52,4 +53,16 @@ interface AttendanceRepositoryInterface
      * }|null
      */
     public function updateAttendanceCorrection(AttendanceCorrectionRequest $request): array|null;
+
+    /**
+     * 勤怠修正申請の承認処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param Request $request
+     * @return array{
+     *   user: User,
+     *   attendance: Attendance,
+     *   breakings: Collection<int, Breaking>
+     * }|null
+     */
+    public function updateApproveAttendance(Request $request): array|null;
 }

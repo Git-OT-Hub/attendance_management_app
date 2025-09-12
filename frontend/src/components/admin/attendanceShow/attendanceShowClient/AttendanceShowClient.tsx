@@ -44,8 +44,6 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                     return;
                 }
 
-                console.log(res);
-
                 setNameAndDate({
                     user_name: res.data.user_name,
                     attendance_start_date: res.data.attendance_start_date,
@@ -62,6 +60,13 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                     setComment(res.data.comment);
                 }
                 setLoading(false);
+
+                if (res.data.attendance_correction_request_date && res.data.user_name) {
+                    createFlash({
+                        type: "error",
+                        message: `${res.data.user_name} さんによって修正申請されている勤怠です。`
+                    });
+                }
             })
             .catch((e) => {
                 console.error('予期しないエラー: ', e);
@@ -96,8 +101,6 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
             comment,
             correction_request_date: formatDateTime()
         };
-
-        console.log(data);
 
         if (confirm("この内容で修正しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
             apiClient.patch('/api/admin/attendance/correction', data)
@@ -141,6 +144,55 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                     }
 
                     console.error('予期しないエラー: ', e);
+                });
+        }
+    };
+
+    const approve = () => {
+        const data = {
+            attendance_correction_id: attendance.attendance_id,
+            approval_date: formatDateTime()
+        };
+
+        if (confirm("この申請を承認しますか？\nこの操作は、取り消しできませんがよろしいですか？")) {
+            apiClient.patch('/api/admin/attendance/approve', data)
+                .then((res: AxiosResponse<AttendanceShowType>) => {
+                    if (res.status !== HTTP_OK) {
+                        console.error('予期しないエラー: ', res.status);
+                        return;
+                    }
+
+                    setNameAndDate({
+                        user_name: res.data.user_name,
+                        attendance_start_date: res.data.attendance_start_date,
+                    });
+                    setAttendance({
+                        attendance_id: res.data.attendance_id,
+                        attendance_start_date: res.data.attendance_start_date,
+                        attendance_start_time: res.data.attendance_start_time,
+                        attendance_end_time: res.data.attendance_end_time,
+                        attendance_correction_request_date: res.data.attendance_correction_request_date,
+                    });
+                    setBreakings(res.data.breakings);
+                    if (res.data.comment) {
+                        setComment(res.data.comment);
+                    } else {
+                        setComment('');
+                    }
+                    setLoading(false);
+
+                    createFlash({
+                        type: "success",
+                        message: "承認しました"
+                    });
+                })
+                .catch((e) => {
+                    console.error('予期しないエラー: ', e);
+                    createFlash({
+                        type: "error",
+                        message: "エラーが発生しました。"
+                    });
+                    router.push('/admin/attendance/list');
                 });
         }
     };
@@ -310,18 +362,26 @@ const AttendanceShowClient = ({id}: AttendanceShowClientProps) => {
                         </tr>
                     </tbody>
                 </table>
-                <div className={styles.btnArea}>
-                    {attendance.attendance_correction_request_date ? (
-                        <span className={styles.btnAreaMessage}>・承認待ちのため修正はできません。</span>
-                    ) : (
+                {!attendance.attendance_correction_request_date && (
+                    <div className={styles.btnArea}>
                         <div className={styles.btn}>
                             <FormButton
                                 text="修正"
                             />
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </form>
+            {attendance.attendance_correction_request_date && (
+                <div className={styles.btnArea}>
+                    <button
+                        className={styles.approveBtn}
+                        onClick={approve}
+                    >
+                        承認
+                    </button>
+                </div>
+            )}
         </div>
     )
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services\Contracts\Admin;
 
+use Illuminate\Http\Request;
 use App\Http\Requests\Admin\Attendance\AttendanceCreateRequest;
 use App\Http\Requests\Admin\Attendance\AttendanceCorrectionRequest;
 
@@ -71,4 +72,24 @@ interface AttendanceServiceInterface
      * }|null
      */
     public function correctAttendance(AttendanceCorrectionRequest $request): array|null;
+
+    /**
+     * 勤怠修正申請の承認処理を行い、その結果を連想配列、もしくは null で返す
+     *
+     * @param Request $request
+     * @return array{
+     *   user_name: string,
+     *   attendance_id: int,
+     *   attendance_start_date: string,
+     *   attendance_start_time: string,
+     *   attendance_end_time: string,
+     *   attendance_correction_request_date: string,
+     *   breakings: array<string, array{
+     *     breaking_id: int,
+     *     breaking_start_time: string,
+     *     breaking_end_time: string,
+     *   }>|null
+     * }|null
+     */
+    public function approveAttendance(Request $request): array|null;
 }
