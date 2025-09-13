@@ -24,7 +24,7 @@ Route::post('/register', [RegisteredUserController::class, 'store']);
 // 一般ユーザーログイン
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
-// 認証済みのユーザーからのリクエストのみ許可
+// 認証済みの一般ユーザーからのリクエストのみ許可
 Route::middleware(['auth:sanctum'])->group(function() {
     // ログインユーザー情報取得
     Route::get('/user', function (Request $request) {
@@ -55,8 +55,11 @@ Route::middleware(['auth:sanctum'])->group(function() {
         Route::post('/attendance/create', [AttendanceController::class, 'create']);
         // 承認待ち一覧
         Route::get('/attendance/correction_request_list/waiting', [AttendanceController::class, 'waitingList']);
+        // 承認済み一覧
+        Route::get('/attendance/correction_request_list/approved', [AttendanceController::class, 'approvedList']);
     });
 });
+
 
 // 管理者
 Route::prefix('admin')->group(function () {

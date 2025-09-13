@@ -100,6 +100,14 @@ export type WaitingForApprovalListType = {
     correction_request_date: string;
 }
 
+export type ApprovedListType = {
+    id: number;
+    user_name: string;
+    start_date: string;
+    comment: string;
+    correction_request_date: string;
+}
+
 export type AdminAttendanceListType = {
     id: number | null;
     start_time: string | null;

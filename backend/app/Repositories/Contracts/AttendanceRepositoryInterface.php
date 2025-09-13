@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Breaking;
+use App\Models\AttendanceCorrection;
 use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
@@ -104,4 +105,14 @@ interface AttendanceRepositoryInterface
      * }|null
      */
     public function findAttendanceWaitingList(): array|null;
+
+    /**
+     * ログインユーザー情報、勤怠修正履歴情報を取得
+     *
+     * @return array{
+     *   user: User,
+     *   attendance_corrections: Collection<int, AttendanceCorrection>
+     * }|null
+     */
+    public function findAttendanceApprovedList(): array|null;
 }

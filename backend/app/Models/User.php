@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -46,12 +47,29 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * ユーザーに紐づく勤怠情報の取得するリレーション
+     * ユーザーに紐づく勤怠情報を取得するリレーション
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Attendance>
      */
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * ユーザーに紐づく勤怠修正履歴を取得するリレーション
+     *
+     * @return HasManyThrough<\App\Models\AttendanceCorrection>
+     */
+    public function attendanceCorrections(): HasManyThrough
+    {
+        return $this->HasManyThrough(
+            AttendanceCorrection::class,
+            Attendance::class,
+            'user_id',
+            'attendance_id',
+            'id',
+            'id'
+        );
     }
 }

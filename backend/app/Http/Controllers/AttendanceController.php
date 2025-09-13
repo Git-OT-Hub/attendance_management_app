@@ -223,4 +223,22 @@ class AttendanceController extends Controller
 
         return response()->json($res, Response::HTTP_OK);
     }
+
+    /**
+     * 承認済みの申請一覧結果を JSON形式で返す
+     *
+     * @return JsonResponse
+    */
+    public function approvedList(): JsonResponse
+    {
+        $res = $this->attendanceService->attendanceApprovedList();
+
+        if ($res === null) {
+            return response()->json([
+                'message' => '承認済み申請一覧の取得に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
+    }
 }

@@ -445,4 +445,44 @@ class AttendanceService implements AttendanceServiceInterface
 
         return $resList;
     }
+
+    /**
+     * 承認済み申請一覧を取得し、その結果を連想配列、空配列、もしくは null で返す
+     *
+     * @return array<int, array{
+     *   id: int,
+     *   user_name: string,
+     *   start_date: string,
+     *   comment: string,
+     *   correction_request_date: string,
+     * }>|array<empty>|null
+     */
+    public function attendanceApprovedList(): array|null
+    {
+        $res = $this->attendanceRepository->findAttendanceApprovedList();
+
+        if (!$res) {
+            return null;
+        }
+
+        $user = $res['user'];
+        $attendanceCorrections = $res['attendance_corrections'];
+
+        if ($attendanceCorrections->count() === 0) {
+            return [];
+        }
+
+        $resList = [];
+        foreach ($attendanceCorrections as $attendanceCorrection) {
+            $resList[] = [
+                'id' => $attendanceCorrection->id,
+                'user_name' => $user->name,
+                'start_date' => $attendanceCorrection->start_date,
+                'comment' => $attendanceCorrection->comment,
+                'correction_request_date' => $attendanceCorrection->correction_request_date,
+            ];
+        }
+
+        return $resList;
+    }
 }
