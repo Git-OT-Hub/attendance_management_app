@@ -377,4 +377,30 @@ class AttendanceRepository implements AttendanceRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * 一般ユーザーの勤怠修正履歴における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   user: User,
+     *   attendance_correction: AttendanceCorrection,
+     *   breaking_corrections: Collection<int, BreakingCorrection>
+     * }|null
+     */
+    public function findAttendanceCorrectionShow(string $id): array|null
+    {
+        try {
+            $attendanceCorrection = AttendanceCorrection::find($id);
+            $user = $attendanceCorrection->attendance->user;
+
+            return [
+                'user'       => $user,
+                'attendance_correction' => $attendanceCorrection,
+                'breaking_corrections'  => $attendanceCorrection->breakingCorrections()->orderBy('id', 'asc')->get(),
+            ];
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
 }

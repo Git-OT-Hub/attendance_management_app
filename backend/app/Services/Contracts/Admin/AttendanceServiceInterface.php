@@ -118,4 +118,22 @@ interface AttendanceServiceInterface
      * }>|array<empty>|null
      */
     public function attendanceApprovedList(): array|null;
+
+    /**
+     * 一般ユーザーの勤怠修正履歴における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   user_name: string,
+     *   start_date: string,
+     *   start_time: string,
+     *   end_time: string,
+     *   comment: string,
+     *   breakings: array<string, array{
+     *     start_time: string,
+     *     end_time: string,
+     *   }>|null
+     * }|null
+     */
+    public function attendanceCorrectionShow(string $id): array|null;
 }

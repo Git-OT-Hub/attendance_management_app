@@ -79,4 +79,16 @@ interface AttendanceRepositoryInterface
      * @return Collection<int, AttendanceCorrection>|null
      */
     public function findAttendanceApprovedList(): Collection|null;
+
+    /**
+     * 一般ユーザーの勤怠修正履歴における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   user: User,
+     *   attendance_correction: AttendanceCorrection,
+     *   breaking_corrections: Collection<int, BreakingCorrection>
+     * }|null
+     */
+    public function findAttendanceCorrectionShow(string $id): array|null;
 }
