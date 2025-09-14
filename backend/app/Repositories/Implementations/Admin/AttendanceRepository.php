@@ -419,4 +419,33 @@ class AttendanceRepository implements AttendanceRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * 対象ユーザーの対象月の勤怠を取得
+     *
+     * @param Request $request
+     * @return Collection<string, Attendance>|null
+     */
+    public function findAttendanceMonthlyList(Request $request): Collection|null
+    {
+        try {
+            $date = (string)$request->query('month') . '-01';
+            $userId = (int)$request->query('userId');
+            $startOfMonth = Carbon::parse($date)->startOfMonth();
+            $endOfMonth = Carbon::parse($date)->endOfMonth();
+
+            // 対象ユーザーの対象月の勤怠を取得
+            $attendances = Attendance::with(['attendanceCorrections' => function ($query) {
+                $query->whereNull('approval_date');
+            }])
+                ->where('user_id', $userId)
+                ->whereBetween('start_date', [$startOfMonth, $endOfMonth])
+                ->get()
+                ->keyBy('start_date');
+
+            return $attendances;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
 }

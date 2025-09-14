@@ -98,4 +98,12 @@ interface AttendanceRepositoryInterface
      * @return Collection<int, User>|null
      */
     public function findUsers(): Collection|null;
+
+    /**
+     * 対象ユーザーの対象月の勤怠を取得
+     *
+     * @param Request $request
+     * @return Collection<string, Attendance>|null
+     */
+    public function findAttendanceMonthlyList(Request $request): Collection|null;
 }

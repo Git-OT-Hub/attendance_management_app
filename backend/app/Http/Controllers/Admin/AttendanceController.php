@@ -188,4 +188,23 @@ class AttendanceController extends Controller
 
         return response()->json($res, Response::HTTP_OK);
     }
+
+    /**
+     * スタッフ別で対象月の日付リストを生成し、その結果を JSON形式で返す
+     *
+     * @param Request $request
+     * @return JsonResponse
+    */
+    public function monthlyList(Request $request): JsonResponse
+    {
+        $res = $this->attendanceService->attendanceMonthlyList($request);
+
+        if (!$res) {
+            return response()->json([
+                'message' => 'スタッフ別月次勤怠一覧の取得に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
+    }
 }

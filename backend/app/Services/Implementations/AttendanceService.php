@@ -164,7 +164,11 @@ class AttendanceService implements AttendanceServiceInterface
                 $target = $attendance;
 
                 if ($attendance && $attendance->correction_request_date) {
-                    $correction = $attendance->attendanceCorrections->first();
+                    $correction = $attendance->attendanceCorrections()
+                        ->whereNull('approval_date')
+                        ->orderByDesc('id')
+                        ->first();
+
                     if ($correction) {
                         $target = $correction;
                     }

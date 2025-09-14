@@ -54,7 +54,12 @@ const StaffListClient = () => {
                             <td>
                                 <Link
                                     className={styles.tableLink}
-                                    href={`/admin/attendance/staff/${record.id}`}
+                                    href={{
+                                        pathname: `/admin/attendance/staff/${record.id}`,
+                                        query: {
+                                            userName: record.name,
+                                        }
+                                    }}
                                 >詳細</Link>
                             </td>
                         </tr>

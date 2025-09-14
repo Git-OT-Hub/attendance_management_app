@@ -60,11 +60,19 @@ export type AttendanceCorrectionShowPageProps = {
     params: Promise<{ id: string }>
 }
 
+export type AttendanceStaffPageProps = {
+    params: Promise<{ id: string }>
+}
+
 export type AttendanceShowClientProps = {
     id: string;
 }
 
 export type AttendanceCorrectionShowClientProps = {
+    id: string;
+}
+
+export type AttendanceStaffClientProps = {
     id: string;
 }
 
@@ -155,4 +163,14 @@ export type AdminAttendanceShowUseState = {
     attendance_start_date: string;
     attendance_start_time: string;
     attendance_end_time: string;
+}
+
+export type AttendanceStaffClientType = {
+    id: number | null;
+    date: string;
+    start_time: string | null;
+    end_time: string | null;
+    total_breaking_time: string | null;
+    actual_working_time: string | null;
+    year_month: string;
 }

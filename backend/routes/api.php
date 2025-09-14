@@ -97,6 +97,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/attendance/correction/{id}', [AdminAttendanceController::class, 'correctionShow']);
             // スタッフ一覧
             Route::get('/staff/list', [AdminAttendanceController::class, 'staffList']);
+            // スタッフ別月次勤怠一覧
+            Route::get('/attendance/monthly/list', [AdminAttendanceController::class, 'monthlyList']);
         });
     });
 });

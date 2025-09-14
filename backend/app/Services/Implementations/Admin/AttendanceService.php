@@ -79,6 +79,18 @@ class AttendanceService implements AttendanceServiceInterface
     }
 
     /**
+     * 曜日を日本語で返す
+     *
+     * @param Carbon $dateTime
+     * @return string
+     */
+    private function getDayOfWeek(Carbon $dateTime): string
+    {
+        $days = ['日', '月', '火', '水', '木', '金', '土'];
+        return $days[$dateTime->dayOfWeek];
+    }
+
+    /**
      * 秒数を「H:i」形式の文字列に変換する
      *
      * @param int|null $seconds
@@ -521,5 +533,66 @@ class AttendanceService implements AttendanceServiceInterface
         }
 
         return $resList;
+    }
+
+    /**
+     * スタッフ別で対象月の日付リストを生成し、その結果を連想配列、もしくは null で返す
+     *
+     * @param Request $request
+     * @return array<int, array{
+     *   id: int|null,
+     *   date: string,
+     *   start_time: string|null,
+     *   end_time: string|null,
+     *   total_breaking_time: string|null,
+     *   actual_working_time: string|null,
+     *   year_month: string
+     * }>|null
+     */
+    public function attendanceMonthlyList(Request $request): array|null
+    {
+        $attendances = $this->attendanceRepository->findAttendanceMonthlyList($request);
+        $date = (string)$request->query('month') . '-01';
+
+        // レスポンスデータ作成
+        if ($attendances) {
+            // 日付ごとに配列を作る
+            $res = [];
+            $startOfMonth = Carbon::parse($date)->startOfMonth();
+            $endOfMonth = Carbon::parse($date)->endOfMonth();
+
+            for ($dateTime = $startOfMonth; $dateTime->lte($endOfMonth); $dateTime->addDay()) {
+                $dateStr = $dateTime->toDateString();
+                $attendance = $attendances->get($dateStr);
+
+                // デフォルトは attendance
+                $target = $attendance;
+
+                if ($attendance && $attendance->correction_request_date) {
+                    $correction = $attendance->attendanceCorrections()
+                        ->whereNull('approval_date')
+                        ->orderByDesc('id')
+                        ->first();
+
+                    if ($correction) {
+                        $target = $correction;
+                    }
+                }
+
+                $res[] = [
+                    'date' => $dateTime->format('m/d') . '(' . $this->getDayOfWeek($dateTime) . ')',
+                    'id' => $attendance?->id,
+                    'start_time' => $target?->start_time ? Carbon::parse($target->start_time)->format('H:i') : null,
+                    'end_time' => $target?->end_time ? Carbon::parse($target->end_time)->format('H:i') : null,
+                    'total_breaking_time' => $this->formatSecondsToHoursMinutes($target?->total_breaking_time),
+                    'actual_working_time' => $this->formatSecondsToHoursMinutes($target?->actual_working_time),
+                    'year_month' => $dateTime->format('Y-m-d'),
+                ];
+            }
+
+            $attendances = $res;
+        }
+
+        return $attendances;
     }
 }

@@ -147,4 +147,20 @@ interface AttendanceServiceInterface
      * }>|array<empty>|null
      */
     public function getStaffList(): array|null;
+
+    /**
+     * スタッフ別で対象月の日付リストを生成し、その結果を連想配列、もしくは null で返す
+     *
+     * @param Request $request
+     * @return array<int, array{
+     *   id: int|null,
+     *   date: string,
+     *   start_time: string|null,
+     *   end_time: string|null,
+     *   total_breaking_time: string|null,
+     *   actual_working_time: string|null,
+     *   year_month: string
+     * }>|null
+     */
+    public function attendanceMonthlyList(Request $request): array|null;
 }
