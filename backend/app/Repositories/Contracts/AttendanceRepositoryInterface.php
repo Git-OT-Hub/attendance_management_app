@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Breaking;
 use App\Models\AttendanceCorrection;
+use App\Models\BreakingCorrection;
 use App\Http\Requests\Attendance\WorkRequest;
 use App\Http\Requests\Attendance\BreakingRequest;
 use App\Http\Requests\Attendance\FinishBreakingRequest;
@@ -75,6 +76,18 @@ interface AttendanceRepositoryInterface
      * }|null
      */
     public function findAttendanceShow(string $id): array|null;
+
+    /**
+     * ログインユーザーの勤怠修正履歴における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   user: User,
+     *   attendance_correction: AttendanceCorrection,
+     *   breaking_corrections: Collection<int, BreakingCorrection>
+     * }|null
+     */
+    public function findAttendanceCorrectionShow(string $id): array|null;
 
     /**
      * ログインユーザーの勤怠情報の修正を行い、その結果を連想配列、もしくは null で返す

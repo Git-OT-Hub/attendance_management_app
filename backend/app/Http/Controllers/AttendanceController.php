@@ -13,6 +13,7 @@ use App\Http\Requests\Attendance\FinishWorkRequest;
 use App\Http\Requests\Attendance\AttendanceCorrectionRequest;
 use App\Http\Requests\Attendance\AttendanceCreateRequest;
 use App\Models\Attendance;
+use App\Models\AttendanceCorrection;
 
 class AttendanceController extends Controller
 {
@@ -158,6 +159,29 @@ class AttendanceController extends Controller
         if (!$res) {
             return response()->json([
                 'message' => '勤怠詳細の取得に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
+    }
+
+    /**
+     * ログインユーザーの勤怠修正履歴における詳細情報を取得し、その結果を JSON形式で返す
+     *
+     * @param  string $id
+     * @return JsonResponse
+    */
+    public function correctionShow(string $id): JsonResponse
+    {
+        // ポリシーの呼び出し
+        $attendanceCorrection = AttendanceCorrection::find($id);
+        $this->authorize('view', $attendanceCorrection);
+
+        $res = $this->attendanceService->attendanceCorrectionShow($id);
+
+        if (!$res) {
+            return response()->json([
+                'message' => '勤怠修正履歴の詳細情報取得に失敗しました'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

@@ -56,7 +56,15 @@ export type AttendanceShowPageProps = {
     params: Promise<{ id: string }>
 }
 
+export type AttendanceCorrectionShowPageProps = {
+    params: Promise<{ id: string }>
+}
+
 export type AttendanceShowClientProps = {
+    id: string;
+}
+
+export type AttendanceCorrectionShowClientProps = {
     id: string;
 }
 
@@ -66,6 +74,11 @@ export type BreakingShowType = {
     breaking_end_time?: string | null;
 };
 
+export type BreakingCorrectionShowType = {
+    start_time?: string;
+    end_time?: string;
+};
+
 export type AttendanceShowType = {
     user_name: string;
     attendance_id: number;
@@ -73,10 +86,29 @@ export type AttendanceShowType = {
     attendance_start_time: string;
     attendance_end_time: string | null;
     attendance_correction_request_date: string | null;
-    comment?: string,
+    comment?: string;
     breakings: {
         [key: string]: BreakingShowType;
     };
+};
+
+export type AttendanceCorrectionShowType = {
+    user_name: string;
+    start_date: string;
+    start_time: string;
+    end_time: string;
+    comment: string;
+    breakings: {
+        [key: string]: BreakingCorrectionShowType;
+    };
+};
+
+export type correctionDataUseState = {
+    user_name: string;
+    start_date: string;
+    start_time: string;
+    end_time: string;
+    comment: string;
 };
 
 export type AttendanceShowUseState = {

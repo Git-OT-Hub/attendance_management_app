@@ -57,6 +57,8 @@ Route::middleware(['auth:sanctum'])->group(function() {
         Route::get('/attendance/correction_request_list/waiting', [AttendanceController::class, 'waitingList']);
         // 承認済み一覧
         Route::get('/attendance/correction_request_list/approved', [AttendanceController::class, 'approvedList']);
+        // 勤怠修正履歴の詳細
+        Route::get('/attendance/correction/{id}', [AttendanceController::class, 'correctionShow']);
     });
 });
 

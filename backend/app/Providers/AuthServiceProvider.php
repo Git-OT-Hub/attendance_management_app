@@ -5,7 +5,9 @@ namespace App\Providers;
 // use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use App\Models\Attendance;
+use App\Models\AttendanceCorrection;
 use App\Policies\AttendancePolicy;
+use App\Policies\AttendanceCorrectionPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Attendance::class => AttendancePolicy::class,
+        AttendanceCorrection::class => AttendanceCorrectionPolicy::class,
     ];
 
     /**

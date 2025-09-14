@@ -315,6 +315,71 @@ class AttendanceService implements AttendanceServiceInterface
     }
 
     /**
+     * ログインユーザーの勤怠修正履歴における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   user_name: string,
+     *   start_date: string,
+     *   start_time: string,
+     *   end_time: string,
+     *   comment: string,
+     *   breakings: array<string, array{
+     *     start_time: string,
+     *     end_time: string,
+     *   }>|null
+     * }|null
+     */
+    public function attendanceCorrectionShow(string $id): array|null
+    {
+        $res = $this->attendanceRepository->findAttendanceCorrectionShow($id);
+
+        if (!$res) {
+            return null;
+        }
+
+        $attendanceCorrectionData = $res['attendance_correction'];
+        $breakingCorrections = $res['breaking_corrections'];
+        $user = $res['user'];
+        $resBreakingCorrections = [];
+
+        // 休憩データの加工
+        foreach ($breakingCorrections as $idx => $breaking) {
+            $key = $idx === 0 ? '休憩' : '休憩' . ($idx + 1);
+
+            $resBreakingCorrections[$key] = [
+                'start_time' => $breaking->start_time
+                    ? $breaking->start_time
+                    : null,
+                'end_time'   => $breaking->end_time
+                    ? $breaking->end_time
+                    : null,
+            ];
+        }
+
+        // 休憩データの数 +1 の空枠を追加
+        $nextKey = count($breakingCorrections) === 0 ? '休憩' : '休憩' . (count($breakingCorrections) + 1);
+        $resBreakingCorrections[$nextKey] = [];
+
+        return [
+            'user_name'  => $user->name,
+            'start_date' => $attendanceCorrectionData->start_date
+                ? $attendanceCorrectionData->start_date
+                : null,
+            'start_time' => $attendanceCorrectionData->start_time
+                ? $attendanceCorrectionData->start_time
+                : null,
+            'end_time'   => $attendanceCorrectionData->end_time
+                ? $attendanceCorrectionData->end_time
+                : null,
+            'comment'    => $attendanceCorrectionData->comment
+                ? $attendanceCorrectionData->comment
+                : null,
+            'breakings'  => $resBreakingCorrections,
+        ];
+    }
+
+    /**
      * 勤怠修正処理を行い、その結果を連想配列、もしくは null で返す
      *
      * @param AttendanceCorrectionRequest $request

@@ -90,6 +90,24 @@ interface AttendanceServiceInterface
     public function attendanceShow(string $id): array|null;
 
     /**
+     * ログインユーザーの勤怠修正履歴における詳細情報を取得し、その結果を連想配列、もしくは null で返す
+     *
+     * @param string $id
+     * @return array{
+     *   user_name: string,
+     *   start_date: string,
+     *   start_time: string,
+     *   end_time: string,
+     *   comment: string,
+     *   breakings: array<string, array{
+     *     start_time: string,
+     *     end_time: string,
+     *   }>|null
+     * }|null
+     */
+    public function attendanceCorrectionShow(string $id): array|null;
+
+    /**
      * 勤怠修正処理を行い、その結果を連想配列、もしくは null で返す
      *
      * @param AttendanceCorrectionRequest $request
