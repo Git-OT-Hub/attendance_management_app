@@ -136,4 +136,15 @@ interface AttendanceServiceInterface
      * }|null
      */
     public function attendanceCorrectionShow(string $id): array|null;
+
+    /**
+     * スタッフ一覧を取得し、その結果を連想配列、空配列、もしくは null で返す
+     *
+     * @return array<int, array{
+     *   id: int,
+     *   name: string,
+     *   email: string,
+     * }>|array<empty>|null
+     */
+    public function getStaffList(): array|null;
 }

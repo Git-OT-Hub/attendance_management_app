@@ -489,4 +489,37 @@ class AttendanceService implements AttendanceServiceInterface
             'breakings'  => $resBreakingCorrections,
         ];
     }
+
+    /**
+     * スタッフ一覧を取得し、その結果を連想配列、空配列、もしくは null で返す
+     *
+     * @return array<int, array{
+     *   id: int,
+     *   name: string,
+     *   email: string,
+     * }>|array<empty>|null
+     */
+    public function getStaffList(): array|null
+    {
+        $users = $this->attendanceRepository->findUsers();
+
+        if (!$users) {
+            return null;
+        }
+
+        if ($users->count() === 0) {
+            return [];
+        }
+
+        $resList = [];
+        foreach ($users as $user) {
+            $resList[] = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ];
+        }
+
+        return $resList;
+    }
 }

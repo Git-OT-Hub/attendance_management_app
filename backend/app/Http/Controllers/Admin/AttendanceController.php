@@ -170,4 +170,22 @@ class AttendanceController extends Controller
 
         return response()->json($res, Response::HTTP_OK);
     }
+
+    /**
+     * スタッフ一覧を JSON形式で返す
+     *
+     * @return JsonResponse
+    */
+    public function staffList(): JsonResponse
+    {
+        $res = $this->attendanceService->getStaffList();
+
+        if ($res === null) {
+            return response()->json([
+                'message' => 'スタッフ一覧の取得に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json($res, Response::HTTP_OK);
+    }
 }

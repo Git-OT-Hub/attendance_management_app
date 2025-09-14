@@ -91,4 +91,11 @@ interface AttendanceRepositoryInterface
      * }|null
      */
     public function findAttendanceCorrectionShow(string $id): array|null;
+
+    /**
+     * 全ユーザー情報を取得
+     *
+     * @return Collection<int, User>|null
+     */
+    public function findUsers(): Collection|null;
 }

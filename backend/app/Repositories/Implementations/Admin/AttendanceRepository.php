@@ -403,4 +403,20 @@ class AttendanceRepository implements AttendanceRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * 全ユーザー情報を取得
+     *
+     * @return Collection<int, User>|null
+     */
+    public function findUsers(): Collection|null
+    {
+        try {
+            $users = User::all();
+
+            return $users;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
 }
