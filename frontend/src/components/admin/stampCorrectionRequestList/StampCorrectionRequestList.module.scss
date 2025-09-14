@@ -1,0 +1,22 @@
+.content {
+    margin-top: 28px;
+}
+
+.header {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    border-bottom: 2px solid #000;
+
+    div {
+        padding: 12px 40px;
+    }
+
+    span {
+        cursor: pointer;
+    }
+}
+
+.selected {
+    font-weight: bold;
+}

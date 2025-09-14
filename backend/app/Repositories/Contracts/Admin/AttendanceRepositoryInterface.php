@@ -65,4 +65,18 @@ interface AttendanceRepositoryInterface
      * }|null
      */
     public function updateApproveAttendance(Request $request): array|null;
+
+    /**
+     * 修正依頼申請中の勤怠情報一覧を取得
+     *
+     * @return Collection<int, Attendance>|null
+     */
+    public function findAttendanceWaitingList(): Collection|null;
+
+    /**
+     * 勤怠修正履歴の情報一覧を取得
+     *
+     * @return Collection<int, AttendanceCorrection>|null
+     */
+    public function findAttendanceApprovedList(): Collection|null;
 }

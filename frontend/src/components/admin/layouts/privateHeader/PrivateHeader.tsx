@@ -27,7 +27,7 @@ const PrivateHeader = () => {
                     className={styles.nav__link}
                 >スタッフ一覧</Link>
                 <Link
-                    href=""
+                    href="/admin/stamp_correction_request/list"
                     className={styles.nav__link}
                 >申請一覧</Link>
                 <Logout />

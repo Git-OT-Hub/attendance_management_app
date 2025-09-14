@@ -343,4 +343,85 @@ class AttendanceService implements AttendanceServiceInterface
             'breakings'             => $resBreakings,
         ];
     }
+
+    /**
+     * 承認待ち申請一覧を取得し、その結果を連想配列、空配列、もしくは null で返す
+     *
+     * @return array<int, array{
+     *   id: int,
+     *   user_name: string,
+     *   start_date: string,
+     *   comment: string,
+     *   correction_request_date: string,
+     * }>|array<empty>|null
+     */
+    public function attendanceWaitingList(): array|null
+    {
+        $attendances = $this->attendanceRepository->findAttendanceWaitingList();
+
+        if (!$attendances) {
+            return null;
+        }
+
+        if ($attendances->count() === 0) {
+            return [];
+        }
+
+        $resList = [];
+        foreach ($attendances as $attendance) {
+            $user = $attendance->user;
+            $correction = $attendance->attendanceCorrections
+                ->whereNull('approval_date')
+                ->first();
+
+            $resList[] = [
+                'id' => $attendance->id,
+                'user_name' => $user->name,
+                'start_date' => $attendance->start_date,
+                'comment' => $correction->comment,
+                'correction_request_date' => $attendance->correction_request_date,
+            ];
+        }
+
+        return $resList;
+    }
+
+    /**
+     * 承認済み申請一覧を取得し、その結果を連想配列、空配列、もしくは null で返す
+     *
+     * @return array<int, array{
+     *   id: int,
+     *   user_name: string,
+     *   start_date: string,
+     *   comment: string,
+     *   correction_request_date: string,
+     * }>|array<empty>|null
+     */
+    public function attendanceApprovedList(): array|null
+    {
+        $attendanceCorrections = $this->attendanceRepository->findAttendanceApprovedList();
+
+        if (!$attendanceCorrections) {
+            return null;
+        }
+
+        if ($attendanceCorrections->count() === 0) {
+            return [];
+        }
+
+        $resList = [];
+        foreach ($attendanceCorrections as $attendanceCorrection) {
+            $user = $attendanceCorrection->attendance->user;
+
+            $resList[] = [
+                'id' => $attendanceCorrection->id,
+                'user_name' => $user->name,
+                'start_date' => $attendanceCorrection->start_date,
+                'comment' => $attendanceCorrection->comment,
+                'correction_request_date' => $attendanceCorrection->correction_request_date,
+            ];
+        }
+
+        return $resList;
+    }
 }

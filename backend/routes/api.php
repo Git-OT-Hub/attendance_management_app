@@ -89,6 +89,10 @@ Route::prefix('admin')->group(function () {
             Route::patch('/attendance/correction', [AdminAttendanceController::class, 'correction']);
             // 承認
             Route::patch('/attendance/approve', [AdminAttendanceController::class, 'approve']);
+            // 承認待ち一覧
+            Route::get('/attendance/correction_request_list/waiting', [AdminAttendanceController::class, 'waitingList']);
+            // 承認済み一覧
+            Route::get('/attendance/correction_request_list/approved', [AdminAttendanceController::class, 'approvedList']);
         });
     });
 });
