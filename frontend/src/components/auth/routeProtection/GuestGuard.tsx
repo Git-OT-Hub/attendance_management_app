@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
 import { User } from "@/types/user/user";
-import { HTTP_OK, HTTP_UNAUTHORIZED } from "@/constants/httpStatus";
+import { HTTP_OK, HTTP_UNAUTHORIZED, HTTP_FORBIDDEN } from "@/constants/httpStatus";
 import { flashStore } from "@/store/zustand/flashStore";
 import Loading from "@/components/ui/loading/Loading";
 
@@ -33,8 +33,18 @@ const GuestGuard = ({
                 router.push('/attendance');
             }
         }).catch((e) => {
-            if (e.status !== HTTP_UNAUTHORIZED) {
+            if (e.status !== HTTP_UNAUTHORIZED && e.status !== HTTP_FORBIDDEN) {
                 console.error('予期しないエラー: ', e);
+
+                return;
+            }
+
+            if (e.status === HTTP_FORBIDDEN) {
+                createFlash({
+                    type: "error",
+                    message: "先にログアウトしてください"
+                });
+                router.push('/admin/attendance/list');
 
                 return;
             }

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/axios/axios";
 import { AxiosResponse } from "axios";
 import { User } from "@/types/user/user";
-import { HTTP_OK, HTTP_UNAUTHORIZED } from "@/constants/httpStatus";
+import { HTTP_OK, HTTP_UNAUTHORIZED, HTTP_FORBIDDEN } from "@/constants/httpStatus";
 import { flashStore } from "@/store/zustand/flashStore";
 import { userStore } from "@/store/zustand/userStore";
 import Loading from "@/components/ui/loading/Loading";
@@ -50,6 +50,16 @@ const VerifiedAuthGuard = ({
                     message: "ログインが必要です"
                 });
                 router.push('/login');
+
+                return;
+            }
+
+            if (e.status === HTTP_FORBIDDEN) {
+                createFlash({
+                    type: "error",
+                    message: "一般ユーザー以外は許可されていません"
+                });
+                router.push('/admin/attendance/list');
 
                 return;
             }

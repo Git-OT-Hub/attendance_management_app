@@ -715,13 +715,23 @@ class AttendanceService implements AttendanceServiceInterface
                 $dateStr = $dateTime->toDateString();
                 $attendance = $attendances->get($dateStr);
 
-                $res[] = [
-                    'date' => $dateTime->format('m/d') . '(' . $this->getDayOfWeek($dateTime) . ')',
-                    'start_time' => $attendance?->start_time ? Carbon::parse($attendance->start_time)->format('H:i') : null,
-                    'end_time' => $attendance?->end_time ? Carbon::parse($attendance->end_time)->format('H:i') : null,
-                    'total_breaking_time' => $this->formatSecondsToHoursMinutes($attendance?->total_breaking_time),
-                    'actual_working_time' => $this->formatSecondsToHoursMinutes($attendance?->actual_working_time),
-                ];
+                if ($attendance && $attendance->correction_request_date) {
+                    $res[] = [
+                        'date' => $dateTime->format('m/d') . '(' . $this->getDayOfWeek($dateTime) . ')',
+                        'start_time' => '修正申請中',
+                        'end_time' => null,
+                        'total_breaking_time' => null,
+                        'actual_working_time' => null,
+                    ];
+                } else {
+                    $res[] = [
+                        'date' => $dateTime->format('m/d') . '(' . $this->getDayOfWeek($dateTime) . ')',
+                        'start_time' => $attendance?->start_time ? Carbon::parse($attendance->start_time)->format('H:i') : null,
+                        'end_time' => $attendance?->end_time ? Carbon::parse($attendance->end_time)->format('H:i') : null,
+                        'total_breaking_time' => $this->formatSecondsToHoursMinutes($attendance?->total_breaking_time),
+                        'actual_working_time' => $this->formatSecondsToHoursMinutes($attendance?->actual_working_time),
+                    ];
+                }
             }
 
             return $res;

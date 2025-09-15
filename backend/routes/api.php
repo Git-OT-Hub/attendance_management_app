@@ -25,10 +25,10 @@ Route::post('/register', [RegisteredUserController::class, 'store']);
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
 // 認証済みの一般ユーザーからのリクエストのみ許可
-Route::middleware(['auth:sanctum'])->group(function() {
+Route::middleware(['auth:sanctum', 'user'])->group(function() {
     // ログインユーザー情報取得
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return $request->user('web');
     });
     // 一般ユーザーログアウト
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
