@@ -12,6 +12,7 @@ import type { AttendanceStaffClientType } from "@/types/attendance/attendance";
 import { HTTP_OK } from "@/constants/httpStatus";
 import { formatWithDayjs, subtractWithDayjs, addWithDayjs } from "@/lib/dateTime/date";
 import { flashStore } from "@/store/zustand/flashStore";
+import { saveAs } from 'file-saver';
 
 const AttendanceStaffClient = ({id}: AttendanceStaffClientProps) => {
     const searchParams = useSearchParams();
@@ -62,6 +63,27 @@ const AttendanceStaffClient = ({id}: AttendanceStaffClientProps) => {
             unit: "month",
             format: "YYYY-MM"
         }));
+    };
+
+    const getFileName = (contentDisposition: string) => {
+        return decodeURI(contentDisposition).substring(
+            contentDisposition.indexOf("''") + 2,
+            contentDisposition.length,
+        )
+    };
+
+    const downloadCSV = () => {
+        if (confirm(`${userName} さんの ${formatWithDayjs({ day: month, format: "YYYY/MM" })} の勤怠一覧情報をCSVでダウンロードしますか？`)) {
+            apiClient.get(`/api/admin/attendance/monthly/list/download/csv?month=${month}&userId=${id}`, { responseType: 'blob' })
+                .then((res: AxiosResponse) => {
+                    const blob = new Blob([res.data], { type: res.data.type });
+                    const fileName = getFileName(res.headers['content-disposition']);
+                    saveAs(blob, fileName);
+                })
+                .catch((e) => {
+                    console.error('予期しないエラー: ', e);
+                });
+        }
     };
 
     return (
@@ -127,6 +149,15 @@ const AttendanceStaffClient = ({id}: AttendanceStaffClientProps) => {
                     ))}
                 </tbody>
             </table>
+
+            <div className={styles.btnArea}>
+                <button
+                    className={styles.btn}
+                    onClick={downloadCSV}
+                >
+                    CSV出力
+                </button>
+            </div>
         </div>
     )
 }

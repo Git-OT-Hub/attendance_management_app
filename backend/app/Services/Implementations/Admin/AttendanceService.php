@@ -595,4 +595,138 @@ class AttendanceService implements AttendanceServiceInterface
 
         return $attendances;
     }
+
+    /**
+     * スタッフ別で対象月の勤怠一覧情報のCSVを生成し、その結果を連想配列、もしくは null で返す
+     *
+     * @param Request $request
+     * @return array{
+     *   downloadCsvCallback: callable,
+     *   fileName: string,
+     *   responseHeader: array<string,string>,
+     * }|null
+     */
+    public function attendanceMonthlyListDownload(Request $request): array|null
+    {
+        try {
+            // 対象ユーザー取得
+            $user = $this->attendanceRepository->findUser($request);
+            if (!$user) {
+                return null;
+            }
+            // 対象年月取得
+            $date = (string)$request->query('month') . '-01';
+            $formatDate = Carbon::parse($date)->format('Y年m月');
+            // 対象年月の勤怠情報取得
+            $attendances = $this->attendanceMonthlyListForCsv($request);
+            if (!$attendances) {
+                return null;
+            }
+
+            // CSVファイル作成コールバック
+            $downloadCsvCallback = function () use ($user, $formatDate, $attendances) {
+                // CSVファイル作成
+                $csv = fopen('php://output', 'w');
+
+                // Mac / Windows 両方での文字化け対策
+                fwrite($csv, "\xEF\xBB\xBF");
+
+                // CSVの1行目
+                $userName = [$user->name];
+                fputcsv($csv, $userName);
+
+                // CSVの2行目
+                $targetYearMonth = [$formatDate];
+                fputcsv($csv, $targetYearMonth);
+
+                // CSVの3行目
+                $column = [
+                    'date' => '日付',
+                    'start_time' => '出勤',
+                    'end_time' => '退勤',
+                    'total_breaking_time' => '休憩',
+                    'actual_working_time' => '合計',
+                ];
+                fputcsv($csv, $column);
+
+                // CSVの4行目以降
+                foreach ($attendances as $attendance) {
+                    $attendanceData = [
+                        'date' => $attendance['date'],
+                        'start_time' => $attendance['start_time'],
+                        'end_time' => $attendance['end_time'],
+                        'total_breaking_time' => $attendance['total_breaking_time'],
+                        'actual_working_time' => $attendance['actual_working_time'],
+                    ];
+                    fputcsv($csv, $attendanceData);
+                }
+
+                // CSVファイルを閉じる
+                fclose($csv);
+            };
+
+            // ファイル名
+            $fileName = (string)$user->name . '_' . (string)$formatDate . '.csv';
+
+            // レスポンスヘッダー情報
+            $responseHeader = [
+                'Content-Type' => 'text/csv',
+                'Access-Control-Expose-Headers' => 'Content-Disposition'
+            ];
+
+            return [
+                'downloadCsvCallback' => $downloadCsvCallback,
+                'fileName' => $fileName,
+                'responseHeader' => $responseHeader
+            ];
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * スタッフ別で対象月の日付リストを生成し、その結果を連想配列、もしくは null で返す
+     *
+     * @param Request $request
+     * @return array<int, array{
+     *   date: string,
+     *   start_time: string|null,
+     *   end_time: string|null,
+     *   total_breaking_time: string|null,
+     *   actual_working_time: string|null,
+     * }>|null
+     */
+    private function attendanceMonthlyListForCsv(Request $request): array|null
+    {
+        try {
+            $attendances = $this->attendanceRepository->findAttendanceMonthlyList($request);
+
+            if (!$attendances) {
+                return null;
+            }
+
+            // 日付ごとに配列を作る
+            $res = [];
+            $date = (string)$request->query('month') . '-01';
+            $startOfMonth = Carbon::parse($date)->startOfMonth();
+            $endOfMonth = Carbon::parse($date)->endOfMonth();
+
+            for ($dateTime = $startOfMonth; $dateTime->lte($endOfMonth); $dateTime->addDay()) {
+                $dateStr = $dateTime->toDateString();
+                $attendance = $attendances->get($dateStr);
+
+                $res[] = [
+                    'date' => $dateTime->format('m/d') . '(' . $this->getDayOfWeek($dateTime) . ')',
+                    'start_time' => $attendance?->start_time ? Carbon::parse($attendance->start_time)->format('H:i') : null,
+                    'end_time' => $attendance?->end_time ? Carbon::parse($attendance->end_time)->format('H:i') : null,
+                    'total_breaking_time' => $this->formatSecondsToHoursMinutes($attendance?->total_breaking_time),
+                    'actual_working_time' => $this->formatSecondsToHoursMinutes($attendance?->actual_working_time),
+                ];
+            }
+
+            return $res;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
 }

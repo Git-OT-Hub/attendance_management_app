@@ -163,4 +163,16 @@ interface AttendanceServiceInterface
      * }>|null
      */
     public function attendanceMonthlyList(Request $request): array|null;
+
+    /**
+     * スタッフ別で対象月の勤怠一覧情報のCSVを生成し、その結果を連想配列、もしくは null で返す
+     *
+     * @param Request $request
+     * @return array{
+     *   downloadCsvCallback: callable,
+     *   fileName: string,
+     *   responseHeader: array<string,string>,
+     * }|null
+     */
+    public function attendanceMonthlyListDownload(Request $request): array|null;
 }

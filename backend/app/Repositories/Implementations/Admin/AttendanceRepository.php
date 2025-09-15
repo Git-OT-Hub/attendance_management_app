@@ -448,4 +448,22 @@ class AttendanceRepository implements AttendanceRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * 対象ユーザー情報を取得
+     *
+     * @param Request $request
+     * @return User|null
+     */
+    public function findUser(Request $request): User|null
+    {
+        try {
+            $userId = (int)$request->query('userId');
+            $user = User::find($userId);
+
+            return $user;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
 }

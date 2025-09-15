@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Http\Controllers\Controller;
 use App\Services\Contracts\Admin\AttendanceServiceInterface;
 use App\Http\Requests\Admin\Attendance\AttendanceCreateRequest;
@@ -206,5 +207,24 @@ class AttendanceController extends Controller
         }
 
         return response()->json($res, Response::HTTP_OK);
+    }
+
+    /**
+     * スタッフ別で対象月の勤怠一覧情報のCSVを生成する
+     *
+     * @param Request $request
+     * @return StreamedResponse|JsonResponse
+    */
+    public function monthlyListDownload(Request $request): StreamedResponse|JsonResponse
+    {
+        $res = $this->attendanceService->attendanceMonthlyListDownload($request);
+
+        if (!$res) {
+            return response()->json([
+                'message' => 'スタッフ別月次勤怠一覧のCSV出力に失敗しました'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->streamDownload($res['downloadCsvCallback'], $res['fileName'], $res['responseHeader']);
     }
 }

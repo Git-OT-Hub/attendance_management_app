@@ -99,6 +99,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/staff/list', [AdminAttendanceController::class, 'staffList']);
             // スタッフ別月次勤怠一覧
             Route::get('/attendance/monthly/list', [AdminAttendanceController::class, 'monthlyList']);
+            // スタッフ別月次勤怠一覧のCSV出力
+            Route::get('/attendance/monthly/list/download/csv', [AdminAttendanceController::class, 'monthlyListDownload']);
         });
     });
 });
