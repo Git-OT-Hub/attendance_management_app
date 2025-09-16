@@ -7,12 +7,12 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Admin;
 
-class AuthenticatedSessionControllerTest extends TestCase
+class LoginControllerTest extends TestCase
 {
     /**
      * 管理ユーザーログイン機能のバリデーションテスト
      */
-    public function test_admin_authenticated_メールアドレスが未入力の場合、指定したバリデーションエラーメッセージが返される(): void
+    public function test_admin_login_メールアドレスが未入力の場合、指定したバリデーションエラーメッセージが返される(): void
     {
         $response = $this->postJson('/api/admin/login', [
             'email' => '',
@@ -29,7 +29,7 @@ class AuthenticatedSessionControllerTest extends TestCase
     /**
      * 管理ユーザーログイン機能のバリデーションテスト
      */
-    public function test_admin_authenticated_パスワードが未入力の場合、指定したバリデーションエラーメッセージが返される(): void
+    public function test_admin_login_パスワードが未入力の場合、指定したバリデーションエラーメッセージが返される(): void
     {
         $response = $this->postJson('/api/admin/login', [
             'email' => 'test@example.com',
@@ -46,7 +46,7 @@ class AuthenticatedSessionControllerTest extends TestCase
     /**
      * 管理ユーザーログイン機能のバリデーションテスト
      */
-    public function test_admin_authenticated_登録内容と一致しない場合、指定したバリデーションエラーメッセージが返される(): void
+    public function test_admin_login_登録内容と一致しない場合、指定したバリデーションエラーメッセージが返される(): void
     {
         // 管理ユーザーアカウント作成
         Admin::factory()->create([

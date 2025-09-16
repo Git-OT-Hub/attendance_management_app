@@ -7,6 +7,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Console\CliDumper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use App\Models\User;
+use App\Models\Admin;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -65,5 +67,27 @@ abstract class TestCase extends BaseTestCase
         $this->beforeApplicationDestroyed(function () use ($db) {
             dump($db->getQueryLog());
         });
+    }
+
+    /**
+     * 一般ユーザーログイン処理
+     */
+    protected function login($user = null)
+    {
+        $user = $user ?? User::factory()->create();
+        $this->actingAs($user);
+
+        return $user;
+    }
+
+    /**
+     * 管理ユーザーログイン処理
+     */
+    protected function adminLogin($user = null)
+    {
+        $user = $user ?? Admin::factory()->create();
+        $this->actingAs($user, 'admin');
+
+        return $user;
     }
 }
