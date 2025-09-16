@@ -253,8 +253,11 @@ users
 1. 全てをテストする場合
 php artisan test
 
-2. 「一般ユーザーのアカウント登録機能」のテスト関連だけをテストする場合
-php artisan test --filter test_register
+2. 「一般ユーザー側だけの機能」を全てテストする場合
+php artisan test tests/Feature/User
+
+3. 「管理ユーザー側だけの機能」を全てテストする場合
+php artisan test tests/Feature/Admin
 ```
 
 ### Next.js環境構築(不要)
