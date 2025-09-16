@@ -14,7 +14,7 @@ git clone git@github.com:Git-OT-Hub/attendance_management_app.git
 ``` text
 APP_NAME=Attendance-Management-App
 APP_ENV=local
-APP_KEY=base64:cmHt4F7QBOrIJswgtvIsI3JuLQB1CULI0qTTl2C5LPE=
+APP_KEY=
 APP_DEBUG=true
 APP_URL=http://localhost
 
@@ -124,6 +124,138 @@ backend/database/seeders/AttendancesTableSeeder.php
 php artisan db:seed
 ```
 7. backendコンテナから抜ける
+
+### Laravelテスト環境構築
+1. テスト用のDB作成
+```
+1. docker-compose.yml と同じ階層で実行し mysqlコンテナに入る
+docker compose exec mysql bash
+
+2. ログインする
+mysql -u root -p
+パスワード：root
+
+3. テスト用のDB作成
+CREATE DATABASE laravel_test;
+
+4. DBが作成されたか確認
+SHOW DATABASES;
+laravel_test があることを確認
+
+5. mysqlコンテナから出る
+```
+2. テスト用の .envファイル作成
+`backend/.env.testing` を作成し、環境変数を設定（下記をコピーして貼り付けてください）
+```
+APP_NAME=Attendance-Management-App
+APP_ENV=testing
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost
+
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel_test
+DB_USERNAME=root
+DB_PASSWORD=root
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+
+SESSION_DOMAIN=localhost
+SANCTUM_STATEFUL_DOMAINS=localhost:3000
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=smtp
+MAIL_HOST=mailhog
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="attendance-management-app@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+
+REDIRECT_URL_AFTER_EMAIL_AUTHENTICATION=http://localhost:3000/attendance
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
+PUSHER_APP_CLUSTER=mt1
+
+VITE_APP_NAME="${APP_NAME}"
+VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+VITE_PUSHER_HOST="${PUSHER_HOST}"
+VITE_PUSHER_PORT="${PUSHER_PORT}"
+VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
+VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+```
+3. テスト用のアプリケーションキーの作成
+```
+php artisan key:generate --env=testing
+```
+4. 設定ファイルのキャッシュをクリア
+```
+php artisan config:clear
+```
+5. マイグレーションの実行
+```
+php artisan migrate --env=testing
+```
+6. テスト用のDBにテーブルが作成されているか確認
+```
+1. docker-compose.yml と同じ階層で実行し mysqlコンテナに入る
+docker compose exec mysql bash
+
+2. ログインする
+mysql -u root -p
+パスワード：root
+
+3. テスト用のDBを選択
+USE laravel_test;
+
+4. laravel_test 内のテーブル確認
+SHOW tables;
+下記テーブルがあることを確認
+admins
+attendance_corrections
+attendances
+breaking_corrections
+breakings
+users
+
+5. mysqlコンテナから出る
+```
+7. テストの実行
+```
+1. 全てをテストする場合
+php artisan test
+
+2. 「一般ユーザーのアカウント登録機能」のテスト関連だけをテストする場合
+php artisan test --filter test_register
+```
 
 ### Next.js環境構築(不要)
 ※ 上記でDockerをビルドした際、frontendコンテナ側で自動的に下記コマンドを実行しているため、`環境構築は不要`です。念の為、記載しております。
