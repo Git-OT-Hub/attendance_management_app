@@ -24,7 +24,7 @@ class AttendancesTableSeeder extends Seeder
      * $startDate = Carbon::create(2025, 7, 1);
      * $endDate   = Carbon::create(2025, 9, 15);
      *
-     * コマンド：
+     * コマンド：(必要に応じて実行してください)
      * php artisan migrate:fresh (既にDBにデータが存在する場合は実行してください)
      * php artisan db:seed
      */
